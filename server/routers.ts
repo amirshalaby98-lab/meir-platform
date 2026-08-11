@@ -10,7 +10,8 @@ import { contactModuleRouter } from "./modules/contacts";
 import { reviewModuleRouter } from "./modules/reviews";
 import { technicianModuleRouter } from "./modules/technicians";
 import { adminModuleRouter, adminDashboardRouter } from "./modules/admin";
-import { usersModuleRouter, getUserByEmail, createLocalUser, verifyPassword } from "./modules/users";
+import { usersModuleRouter, getUserByEmail, createLocalUser, verifyPassword, createPasswordResetCode, consumePasswordResetCode, updateUserPassword } from "./modules/users";
+import { sendPasswordResetEmail } from "./modules/email";
 import { carDataRouter, advancedPricingRouter, pricingRouter } from "./modules/pricing";
 import { loyaltyModuleRouter } from "./modules/loyalty";
 import { statsModuleRouter } from "./modules/stats";
@@ -95,6 +96,55 @@ export const appRouter = router({
           throw new TRPCError({ code: "UNAUTHORIZED", message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
         }
 
+        const sessionToken = await sdk.createSessionToken(user.openId, {
+          name: user.name || "",
+          expiresInMs: ONE_YEAR_MS,
+        });
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+        return { success: true } as const;
+      }),
+    forgotPassword: publicProcedure
+      .input(z.object({ email: z.string().email().max(320).trim() }))
+      .mutation(async ({ input }) => {
+        // Always return the same generic response whether or not the email
+        // exists, so this endpoint can't be used to enumerate registered
+        // accounts. Only actually send a code if there's a real local
+        // account behind that email.
+        const user = await getUserByEmail(input.email);
+        if (user && user.passwordHash) {
+          const code = await createPasswordResetCode(user.id);
+          await sendPasswordResetEmail(input.email, code);
+        }
+
+        return {
+          success: true,
+          message: "إذا كان البريد الإلكتروني مسجلاً لدينا، فسيتم إرسال رمز التحقق إليه",
+        } as const;
+      }),
+    resetPassword: publicProcedure
+      .input(z.object({
+        email: z.string().email().max(320).trim(),
+        code: z.string().min(1).max(10),
+        newPassword: z.string().min(8).max(200),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const genericError = new TRPCError({ code: "BAD_REQUEST", message: "رمز التحقق غير صحيح أو منتهي الصلاحية" });
+
+        const user = await getUserByEmail(input.email);
+        if (!user || !user.passwordHash) {
+          throw genericError;
+        }
+
+        const valid = await consumePasswordResetCode(user.id, input.code);
+        if (!valid) {
+          throw genericError;
+        }
+
+        await updateUserPassword(user.id, input.newPassword);
+
+        // Log the user in immediately after a successful reset.
         const sessionToken = await sdk.createSessionToken(user.openId, {
           name: user.name || "",
           expiresInMs: ONE_YEAR_MS,

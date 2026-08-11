@@ -32,6 +32,18 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
 /**
+ * Password reset OTP codes for local email/password accounts.
+ */
+export const passwordResetCodes = mysqlTable("passwordResetCodes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  code: varchar("code", { length: 10 }).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  usedAt: timestamp("usedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+/**
  * Bookings table to store service booking requests
  */
 export const bookings = mysqlTable("bookings", {

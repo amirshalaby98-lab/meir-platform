@@ -218,6 +218,13 @@
       "when": 1786479684625,
       "tag": "0030_illegal_johnny_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1786481785147,
+      "tag": "0031_fuzzy_drax",
+      "breakpoints": true
     }
   ]
 }

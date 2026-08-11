@@ -3,12 +3,16 @@ const log = createLogger("users-repo");
 /**
  * Users Module - Database Repository
  */
-import { eq } from "drizzle-orm";
+import { eq, and, isNull, gt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
-import { users, InsertUser } from "../../../drizzle/schema";
+import { users, passwordResetCodes, InsertUser } from "../../../drizzle/schema";
 import { getDb } from "../../shared/database";
 import { ENV } from "../../_core/env";
+
+function generateOtpCode(): string {
+  return Math.random().toString().slice(2, 8).padStart(6, "0");
+}
 
 export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
@@ -146,4 +150,59 @@ export function toSafeUser<T extends { passwordHash?: string | null }>(
 ): Omit<T, "passwordHash"> {
   const { passwordHash, ...safe } = user;
   return safe;
+}
+
+/**
+ * Generate and store a password-reset OTP for a user. Valid for 10 minutes.
+ * Returns the plain code (caller is responsible for delivering it).
+ */
+export async function createPasswordResetCode(userId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const code = generateOtpCode();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await db.insert(passwordResetCodes).values({ userId, code, expiresAt });
+
+  return code;
+}
+
+/**
+ * Validate a password-reset OTP and mark it used if valid.
+ * Returns true if the code was valid (unused, unexpired, matching userId).
+ */
+export async function consumePasswordResetCode(userId: number, code: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const matches = await db
+    .select()
+    .from(passwordResetCodes)
+    .where(
+      and(
+        eq(passwordResetCodes.userId, userId),
+        eq(passwordResetCodes.code, code),
+        isNull(passwordResetCodes.usedAt),
+        gt(passwordResetCodes.expiresAt, new Date())
+      )
+    )
+    .limit(1);
+
+  if (matches.length === 0) return false;
+
+  await db
+    .update(passwordResetCodes)
+    .set({ usedAt: new Date() })
+    .where(eq(passwordResetCodes.id, matches[0].id));
+
+  return true;
+}
+
+export async function updateUserPassword(userId: number, newPassword: string): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+  await db.update(users).set({ passwordHash }).where(eq(users.id, userId));
 }

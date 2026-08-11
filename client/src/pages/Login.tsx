@@ -68,6 +68,12 @@ export default function Login() {
           </Button>
         </form>
 
+        <p className="text-center mt-4">
+          <Link href="/forgot-password" className="text-gray-500 hover:underline text-sm">
+            نسيت كلمة المرور؟
+          </Link>
+        </p>
+
         <p className="text-center text-gray-500 mt-6">
           ليس لديك حساب؟{" "}
           <Link href="/register" className="text-yellow-600 font-semibold hover:underline">

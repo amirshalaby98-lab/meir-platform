@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
-import { promotions } from "../drizzle/schema";
+import { publicProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
+import { promotions } from "../../../drizzle/schema";
 import { eq, and, lte, gte } from "drizzle-orm";
 
 export const promotionsRouter = router({

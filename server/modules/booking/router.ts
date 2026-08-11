@@ -6,7 +6,7 @@ import { createBooking, getBookingById } from "../../db";
 import {
   sendBookingConfirmationSMS,
   formatPhoneNumber,
-} from "../../sms";
+} from "../sms";
 import { createLogger } from "../../_core/logger";
 
 const log = createLogger("booking");

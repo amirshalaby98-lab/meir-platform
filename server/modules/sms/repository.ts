@@ -1,17 +1,17 @@
-import { createLogger } from "./_core/logger";
+import { createLogger } from "../../_core/logger";
 const log = createLogger("sms");
 /**
  * SMS Notification System for Meir
- * 
+ *
  * This module provides SMS notification functionality for customer updates.
  * Supports multiple SMS providers: Mock (testing), Unifonic, Twilio, SMS Misr
- * 
+ *
  * To enable Unifonic (recommended for Saudi Arabia):
  * 1. Sign up at https://www.unifonic.com/ar/
  * 2. Get your App SID from Settings → API Keys
  * 3. Add UNIFONIC_APP_SID to Settings → Secrets in the management UI
  * 4. The system will automatically use Unifonic when App SID is present
- * 
+ *
  * See UNIFONIC_SETUP.md for detailed setup instructions.
  */
 

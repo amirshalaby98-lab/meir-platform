@@ -17,7 +17,7 @@ import { updateTechnicianInfo, registerTechnician, getTechnicianByUserId, getPen
 import {
   sendTechnicianAssignmentSMS,
   formatPhoneNumber,
-} from "../../sms";
+} from "../sms";
 import { notifyOwner } from "../../_core/notification";
 
 const log = createLogger("technician");

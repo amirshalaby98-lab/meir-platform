@@ -12,7 +12,7 @@ import {
   sendBookingCompletionSMS,
   sendBookingCancellationSMS,
   formatPhoneNumber,
-} from "../../sms";
+} from "../sms";
 import {
   awardPoints,
   POINTS_PER_BOOKING,

@@ -11,14 +11,13 @@ import { reviewModuleRouter } from "./modules/reviews";
 import { technicianModuleRouter } from "./modules/technicians";
 import { adminModuleRouter } from "./modules/admin";
 import { usersModuleRouter } from "./modules/users";
-import { carDataRouter, advancedPricingRouter } from "./modules/pricing";
+import { carDataRouter, advancedPricingRouter, pricingRouter } from "./modules/pricing";
 import { loyaltyModuleRouter } from "./modules/loyalty";
 import { statsModuleRouter } from "./modules/stats";
 import { trackingModuleRouter } from "./modules/tracking";
 
 // Existing standalone routers
 import { coursesRouter, lessonsRouter } from "./modules/courses";
-import { pricingRouter } from "./pricing";
 import { promotionsRouter } from "./modules/promotions";
 import { reportsRouter } from "./reports";
 import { notificationsRouter } from "./modules/notifications";

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, adminProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
-import { carBrands, carModels, serviceParts, laborTimes, pricingSettings, priceCalculations, partsPrices, towTrucks, partsShops, junkyards, notifications, invoices, workshops } from "../drizzle/schema";
+import { publicProcedure, adminProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
+import { carBrands, carModels, serviceParts, laborTimes, pricingSettings, priceCalculations, partsPrices, towTrucks, partsShops, junkyards, notifications, invoices, workshops } from "../../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 export const pricingRouter = router({

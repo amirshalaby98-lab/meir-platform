@@ -6,3 +6,4 @@ export {
 } from "./repository";
 export { carDataRouter } from "./router";
 export { advancedPricingRouter } from "./advanced.router";
+export { pricingRouter } from "./calculator.router";

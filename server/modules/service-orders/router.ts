@@ -14,7 +14,7 @@ import {
   serviceInvoices,
 } from "../../../drizzle/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
-import { storagePut, storageGet } from "../../storage";
+import { storagePut, storageGet } from "../../shared/storage";
 import { TRPCError } from "@trpc/server";
 
 const log = createLogger("service-orders");

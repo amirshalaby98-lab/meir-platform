@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { vendorsRouter } from "./vendors";
+import { vendorsRouter } from "./modules/vendors";
 import { getDb } from "./db";
 
 describe("Vendors Router", () => {

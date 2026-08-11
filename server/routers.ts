@@ -22,7 +22,7 @@ import { pricingRouter } from "./pricing";
 import { promotionsRouter } from "./promotions";
 import { reportsRouter } from "./reports";
 import { notificationsRouter } from "./notifications";
-import { vendorsRouter } from "./vendors";
+import { vendorsRouter } from "./modules/vendors";
 import { advancedPricingRouter } from "./advancedPricing";
 import { chatRouter } from "./chat";
 import { analyticsRouter } from "./analytics";

@@ -211,6 +211,13 @@
       "when": 1781630332856,
       "tag": "0029_lively_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1786479684625,
+      "tag": "0030_illegal_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

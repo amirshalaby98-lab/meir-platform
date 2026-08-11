@@ -16,6 +16,8 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
+  /** bcrypt hash for local email/password accounts. Null for Manus-OAuth-origin accounts. */
+  passwordHash: varchar("passwordHash", { length: 255 }),
   role: mysqlEnum("role", ["user", "admin", "technician"]).default("user").notNull(),
   /** User type selected after first login: customer, technician, or service_provider */
   userType: mysqlEnum("userType", ["customer", "technician", "service_provider"]),

@@ -39,10 +39,14 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  const secure = isSecureRequest(req);
+
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
-    secure: isSecureRequest(req),
+    // SameSite=None requires Secure or browsers silently drop the cookie.
+    // Fall back to Lax on plain HTTP deployments so sessions actually persist.
+    sameSite: secure ? "none" : "lax",
+    secure,
   };
 }

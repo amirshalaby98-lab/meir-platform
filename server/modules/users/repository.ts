@@ -4,6 +4,8 @@ const log = createLogger("users-repo");
  * Users Module - Database Repository
  */
 import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { nanoid } from "nanoid";
 import { users, InsertUser } from "../../../drizzle/schema";
 import { getDb } from "../../shared/database";
 import { ENV } from "../../_core/env";
@@ -95,4 +97,45 @@ export async function setUserType(id: number, userType: "customer" | "technician
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(users).set({ userType }).where(eq(users.id, id));
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Create a locally-authenticated (email/password) user account.
+ * Synthesizes an openId so it fits the same session/lookup mechanism used
+ * for Manus-OAuth-origin accounts, without ever calling out to Manus.
+ */
+export async function createLocalUser(data: {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const passwordHash = await bcrypt.hash(data.password, 10);
+  const openId = `local:${nanoid()}`;
+
+  await db.insert(users).values({
+    openId,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    passwordHash,
+    loginMethod: "password",
+    lastSignedIn: new Date(),
+  });
+
+  return getUserByOpenId(openId);
+}
+
+export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(plain, hash);
 }

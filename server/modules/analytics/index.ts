@@ -10,3 +10,4 @@ export {
   setDefaultFilter,
   getDefaultFilter,
 } from "./repository";
+export { analyticsRouter } from "./router";

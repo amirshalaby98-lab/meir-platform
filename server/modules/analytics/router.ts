@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
+import { publicProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
 import {
   vendorStats,
   serviceAnalytics,
@@ -10,7 +10,7 @@ import {
   bookings,
   reviews,
   vendors,
-} from "../drizzle/schema";
+} from "../../../drizzle/schema";
 import { eq, and, gte, lte, desc, sql } from "drizzle-orm";
 
 export const analyticsRouter = router({

@@ -23,7 +23,7 @@ import { reportsRouter } from "./reports";
 import { notificationsRouter } from "./modules/notifications";
 import { vendorsRouter } from "./modules/vendors";
 import { chatRouter } from "./modules/chat";
-import { analyticsRouter } from "./analytics";
+import { analyticsRouter } from "./modules/analytics";
 import { adminDashboardRouter } from "./adminDashboard";
 import { diagnosticsRouter } from "./modules/diagnostics/router";
 import { consultationsRouter } from "./modules/consultations/router";

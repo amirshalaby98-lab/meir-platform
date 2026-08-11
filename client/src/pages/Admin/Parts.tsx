@@ -15,10 +15,10 @@ export default function PartsManagement() {
   const [editingPart, setEditingPart] = useState<any>(null);
   const [formData, setFormData] = useState({ name: "", nameAr: "", description: "" });
 
-  const { data: parts, refetch } = trpc.getServiceParts.useQuery();
-  const createPart = trpc.createServicePart.useMutation();
-  const updatePart = trpc.updateServicePart.useMutation();
-  const deletePart = trpc.deleteServicePart.useMutation();
+  const { data: parts, refetch } = trpc.carData.getServiceParts.useQuery();
+  const createPart = trpc.carData.createServicePart.useMutation();
+  const updatePart = trpc.carData.updateServicePart.useMutation();
+  const deletePart = trpc.carData.deleteServicePart.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

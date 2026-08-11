@@ -13,7 +13,7 @@ export default function UserDetail() {
   const userId = params?.id ? parseInt(params.id) : 0;
   const { toast } = useToast();
 
-  const { data: user, isLoading } = trpc.getUserById.useQuery({ id: userId }, { enabled: userId > 0 });
+  const { data: user, isLoading } = trpc.users.getById.useQuery({ id: userId }, { enabled: userId > 0 });
 
   // Technician stats
   const { data: techStats } = trpc.technician.getStats.useQuery(

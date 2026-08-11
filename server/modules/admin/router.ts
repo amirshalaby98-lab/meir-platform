@@ -17,9 +17,7 @@ import {
   awardPoints,
   POINTS_PER_BOOKING,
 } from "../loyalty/repository";
-import { getDb } from "../../shared/database";
-import { users } from "../../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { getAllUsers, updateUserRole as updateUserRoleRepo } from "../users";
 
 const log = createLogger("admin");
 
@@ -87,10 +85,7 @@ export const adminModuleRouter = router({
 
   // جلب جميع المستخدمين
   getUsers: adminProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
-    const allUsers = await db.select().from(users);
-    return allUsers;
+    return await getAllUsers();
   }),
 
   // تحديث دور المستخدم
@@ -100,12 +95,8 @@ export const adminModuleRouter = router({
       role: z.enum(["user", "admin", "technician"]),
     }))
     .mutation(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-      await db.update(users)
-        .set({ role: input.role })
-        .where(eq(users.id, input.userId));
-      
+      await updateUserRoleRepo(input.userId, input.role);
+
       log.info(`User ${input.userId} role updated to ${input.role}`);
       return { success: true };
     }),

@@ -15,10 +15,10 @@ export default function BrandsManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({ name: "", nameAr: "", logo: "" });
 
-  const { data: brands, refetch } = trpc.getCarBrands.useQuery();
-  const createBrand = trpc.createCarBrand.useMutation();
-  const updateBrand = trpc.updateCarBrand.useMutation();
-  const deleteBrand = trpc.deleteCarBrand.useMutation();
+  const { data: brands, refetch } = trpc.carData.getCarBrands.useQuery();
+  const createBrand = trpc.carData.createCarBrand.useMutation();
+  const updateBrand = trpc.carData.updateCarBrand.useMutation();
+  const deleteBrand = trpc.carData.deleteCarBrand.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

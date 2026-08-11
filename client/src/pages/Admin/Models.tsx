@@ -28,11 +28,11 @@ export default function ModelsManagement() {
     yearTo: ""
   });
 
-  const { data: brands } = trpc.getCarBrands.useQuery();
-  const { data: models, refetch } = trpc.getCarModels.useQuery();
-  const createModel = trpc.createCarModel.useMutation();
-  const updateModel = trpc.updateCarModel.useMutation();
-  const deleteModel = trpc.deleteCarModel.useMutation();
+  const { data: brands } = trpc.carData.getCarBrands.useQuery();
+  const { data: models, refetch } = trpc.carData.getCarModels.useQuery();
+  const createModel = trpc.carData.createCarModel.useMutation();
+  const updateModel = trpc.carData.updateCarModel.useMutation();
+  const deleteModel = trpc.carData.deleteCarModel.useMutation();
 
   const filteredModels = (selectedBrandId 
     ? models?.filter((m: any) => m.brandId === selectedBrandId)

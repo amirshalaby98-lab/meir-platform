@@ -32,15 +32,15 @@ export const carDataRouter = router({
     }),
 
   createCarBrand: adminProcedure
-    .input(z.object({ name: z.string(), nameAr: z.string() }))
+    .input(z.object({ name: z.string().min(1).max(100).trim(), nameAr: z.string().min(1).max(100).trim(), logo: z.string().max(500).optional() }))
     .mutation(async ({ input }) => {
       return await createCarBrand(input);
     }),
 
   updateCarBrand: adminProcedure
-    .input(z.object({ id: z.number(), name: z.string().optional(), nameAr: z.string().optional() }))
+    .input(z.object({ id: z.number().int().positive(), name: z.string().min(1).max(100).trim().optional(), nameAr: z.string().min(1).max(100).trim().optional(), logo: z.string().max(500).optional(), isActive: z.boolean().optional() }))
     .mutation(async ({ input }) => {
-      return await updateCarBrand(input.id, { name: input.name, nameAr: input.nameAr });
+      return await updateCarBrand(input.id, { name: input.name, nameAr: input.nameAr, logo: input.logo, isActive: input.isActive });
     }),
 
   deleteCarBrand: adminProcedure
@@ -67,15 +67,15 @@ export const carDataRouter = router({
     }),
 
   createCarModel: adminProcedure
-    .input(z.object({ brandId: z.number(), name: z.string(), nameAr: z.string(), year: z.number().optional() }))
+    .input(z.object({ brandId: z.number().int().positive(), name: z.string().min(1).max(100).trim(), nameAr: z.string().min(1).max(100).trim(), image: z.string().max(500).optional(), yearFrom: z.number().int().min(1900).max(2100).optional(), yearTo: z.number().int().min(1900).max(2100).optional() }))
     .mutation(async ({ input }) => {
       return await createCarModel(input);
     }),
 
   updateCarModel: adminProcedure
-    .input(z.object({ id: z.number(), name: z.string().optional(), nameAr: z.string().optional(), yearFrom: z.number().optional(), yearTo: z.number().optional() }))
+    .input(z.object({ id: z.number().int().positive(), name: z.string().min(1).max(100).trim().optional(), nameAr: z.string().min(1).max(100).trim().optional(), image: z.string().max(500).optional(), yearFrom: z.number().int().min(1900).max(2100).optional(), yearTo: z.number().int().min(1900).max(2100).optional(), isActive: z.boolean().optional() }))
     .mutation(async ({ input }) => {
-      return await updateCarModel(input.id, { name: input.name, nameAr: input.nameAr, yearFrom: input.yearFrom, yearTo: input.yearTo });
+      return await updateCarModel(input.id, { name: input.name, nameAr: input.nameAr, image: input.image, yearFrom: input.yearFrom, yearTo: input.yearTo, isActive: input.isActive });
     }),
 
   deleteCarModel: adminProcedure
@@ -96,19 +96,19 @@ export const carDataRouter = router({
     }),
 
   createServicePart: adminProcedure
-    .input(z.object({ name: z.string(), nameAr: z.string(), category: z.string().optional() }))
+    .input(z.object({ name: z.string().min(1).max(200).trim(), nameAr: z.string().min(1).max(200).trim(), category: z.string().max(100).trim().optional() }))
     .mutation(async ({ input }) => {
       return await createServicePart(input);
     }),
 
   updateServicePart: adminProcedure
-    .input(z.object({ id: z.number(), name: z.string().optional(), nameAr: z.string().optional(), description: z.string().optional() }))
+    .input(z.object({ id: z.number().int().positive(), name: z.string().min(1).max(200).trim().optional(), nameAr: z.string().min(1).max(200).trim().optional(), description: z.string().max(1000).trim().optional() }))
     .mutation(async ({ input }) => {
       return await updateServicePart(input.id, { name: input.name, nameAr: input.nameAr, description: input.description });
     }),
 
   deleteServicePart: adminProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ input }) => {
       return await deleteServicePart(input.id);
     }),

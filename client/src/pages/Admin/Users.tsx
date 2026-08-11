@@ -8,10 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import AdminLayout from "@/components/AdminLayout";
 
 export default function UsersManagement() {
-  const { data: users, refetch: refetchUsers } = trpc.getUsers.useQuery();
+  const { data: users, refetch: refetchUsers } = trpc.users.getAll.useQuery();
   const { data: technicians, refetch: refetchTechnicians } = trpc.technician.getAll.useQuery();
-  const updateUserRole = trpc.updateUserRole.useMutation();
-  const toggleUserActive = trpc.toggleUserActive.useMutation({
+  const updateUserRole = trpc.users.updateRole.useMutation();
+  const toggleUserActive = trpc.users.toggleActive.useMutation({
     onSuccess: () => refetchUsers(),
   });
   const updateTechnicianStatus = trpc.technician.updateStatus.useMutation();

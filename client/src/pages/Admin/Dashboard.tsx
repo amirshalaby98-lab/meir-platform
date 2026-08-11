@@ -73,11 +73,11 @@ function AdminDashboardContent() {
   });
 
   const { data: bookings } = trpc.admin.getBookings.useQuery();
-  const { data: users } = trpc.getUsers.useQuery();
+  const { data: users } = trpc.users.getAll.useQuery();
   const { data: technicians } = trpc.technician.getAll.useQuery();
-  const { data: brands } = trpc.getCarBrands.useQuery();
-  const { data: models } = trpc.getCarModels.useQuery();
-  const { data: parts } = trpc.getServiceParts.useQuery();
+  const { data: brands } = trpc.carData.getCarBrands.useQuery();
+  const { data: models } = trpc.carData.getCarModels.useQuery();
+  const { data: parts } = trpc.carData.getServiceParts.useQuery();
   const { data: reviews } = trpc.review.getAll.useQuery();
   const { data: revenueData } = trpc.reports.getRevenue.useQuery({ period: 'week' });
   const { data: pendingTechs } = trpc.technician.getPending.useQuery(undefined, { retry: false });

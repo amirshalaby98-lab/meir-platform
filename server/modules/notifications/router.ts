@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
-import { notifications, invoices } from "../drizzle/schema";
+import { publicProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
+import { notifications, invoices } from "../../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export const notificationsRouter = router({

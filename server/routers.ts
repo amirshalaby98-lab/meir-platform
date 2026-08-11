@@ -21,7 +21,7 @@ import { coursesRouter, lessonsRouter } from "./modules/courses";
 import { pricingRouter } from "./pricing";
 import { promotionsRouter } from "./modules/promotions";
 import { reportsRouter } from "./reports";
-import { notificationsRouter } from "./notifications";
+import { notificationsRouter } from "./modules/notifications";
 import { vendorsRouter } from "./modules/vendors";
 import { advancedPricingRouter } from "./advancedPricing";
 import { chatRouter } from "./modules/chat";

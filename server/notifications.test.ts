@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { notificationsRouter } from "./notifications";
+import { notificationsRouter } from "./modules/notifications";
 
 // Mock context for notifications router (uses publicProcedure, no auth needed)
 function createMockContext() {

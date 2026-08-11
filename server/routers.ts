@@ -35,13 +35,14 @@ import { sdk } from "./_core/sdk";
 import { ONE_YEAR_MS } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { setUserType } from "./db";
+import { toSafeUser } from "./modules/users/repository";
 
 export const appRouter = router({
   system: systemRouter,
 
   // Auth
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => opts.ctx.user ? toSafeUser(opts.ctx.user) : null),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

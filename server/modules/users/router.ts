@@ -1,16 +1,19 @@
 import { z } from "zod";
 import { adminProcedure, router } from "../../_core/trpc";
 import { getAllUsers, getUserById, updateUserRole, toggleUserActive } from "../../db";
+import { toSafeUser } from "./repository";
 
 export const usersModuleRouter = router({
   getAll: adminProcedure.query(async () => {
-    return await getAllUsers();
+    const users = await getAllUsers();
+    return users.map(toSafeUser);
   }),
 
   getById: adminProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
-      return await getUserById(input.id);
+      const user = await getUserById(input.id);
+      return user ? toSafeUser(user) : user;
     }),
 
   updateRole: adminProcedure

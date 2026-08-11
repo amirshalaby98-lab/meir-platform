@@ -18,6 +18,7 @@ import {
   POINTS_PER_BOOKING,
 } from "../loyalty/repository";
 import { getAllUsers, updateUserRole as updateUserRoleRepo } from "../users";
+import { toSafeUser } from "../users/repository";
 
 const log = createLogger("admin");
 
@@ -85,7 +86,8 @@ export const adminModuleRouter = router({
 
   // جلب جميع المستخدمين
   getUsers: adminProcedure.query(async () => {
-    return await getAllUsers();
+    const users = await getAllUsers();
+    return users.map(toSafeUser);
   }),
 
   // تحديث دور المستخدم

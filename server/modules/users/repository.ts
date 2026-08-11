@@ -139,3 +139,11 @@ export async function createLocalUser(data: {
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
   return bcrypt.compare(plain, hash);
 }
+
+/** Strip the password hash before a user row is sent to the client. */
+export function toSafeUser<T extends { passwordHash?: string | null }>(
+  user: T
+): Omit<T, "passwordHash"> {
+  const { passwordHash, ...safe } = user;
+  return safe;
+}

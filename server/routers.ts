@@ -19,7 +19,7 @@ import { trackingModuleRouter } from "./modules/tracking";
 // Existing standalone routers
 import { coursesRouter, lessonsRouter } from "./modules/courses";
 import { promotionsRouter } from "./modules/promotions";
-import { reportsRouter } from "./reports";
+import { reportsRouter } from "./modules/reports";
 import { notificationsRouter } from "./modules/notifications";
 import { vendorsRouter } from "./modules/vendors";
 import { chatRouter } from "./modules/chat";

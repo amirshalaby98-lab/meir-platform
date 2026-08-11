@@ -1,6 +1,8 @@
 import { z } from "zod";
-import { publicProcedure, adminProcedure, router } from "./_core/trpc";
-import * as db from "./db";
+import { publicProcedure, adminProcedure, router } from "../../_core/trpc";
+import { getAllBookings, getBookingsByDateRange } from "../booking";
+import { getAllTechnicians } from "../technicians";
+import { getPriceCalculationsByDateRange } from "../pricing";
 
 export const reportsRouter = router({
   // الحصول على بيانات الإيرادات
@@ -31,7 +33,7 @@ export const reportsRouter = router({
       }
 
       // جلب بيانات الأسعار من قاعدة البيانات
-      const calculations = await db.getPriceCalculationsByDateRange(startDate, now);
+      const calculations = await getPriceCalculationsByDateRange(startDate, now);
       
       // تجميع البيانات حسب التاريخ
       const revenueByDate: { [key: string]: number } = {};
@@ -67,7 +69,7 @@ export const reportsRouter = router({
 
   // الحصول على الحجوزات حسب الحالة
   getBookingsByStatus: publicProcedure.query(async () => {
-    const bookings = await db.getAllBookings();
+    const bookings = await getAllBookings();
     
     const statusCount = {
       pending: 0,
@@ -114,7 +116,7 @@ export const reportsRouter = router({
           break;
       }
 
-      const calculations = await db.getPriceCalculationsByDateRange(startDate, now);
+      const calculations = await getPriceCalculationsByDateRange(startDate, now);
       
       // تجميع القطع
       const partCount: { [key: string]: number } = {};
@@ -164,7 +166,7 @@ export const reportsRouter = router({
           break;
       }
 
-      const calculations = await db.getPriceCalculationsByDateRange(startDate, now);
+      const calculations = await getPriceCalculationsByDateRange(startDate, now);
       
       // تجميع الماركات
       const brandCount: { [key: string]: number } = {};
@@ -220,12 +222,12 @@ export const reportsRouter = router({
       }
 
       // جلب البيانات للفترة الحالية
-      const currentCalculations = await db.getPriceCalculationsByDateRange(startDate, now);
-      const currentBookings = await db.getBookingsByDateRange(startDate, now);
+      const currentCalculations = await getPriceCalculationsByDateRange(startDate, now);
+      const currentBookings = await getBookingsByDateRange(startDate, now);
       
       // جلب البيانات للفترة السابقة
-      const previousCalculations = await db.getPriceCalculationsByDateRange(previousStartDate, startDate);
-      const previousBookings = await db.getBookingsByDateRange(previousStartDate, startDate);
+      const previousCalculations = await getPriceCalculationsByDateRange(previousStartDate, startDate);
+      const previousBookings = await getBookingsByDateRange(previousStartDate, startDate);
 
       // حساب الإحصائيات
       const totalRevenue = currentCalculations.reduce((sum: number, calc: any) => sum + calc.totalCost, 0);
@@ -255,8 +257,8 @@ export const reportsRouter = router({
   getTopTechnicians: adminProcedure
     .input(z.object({ limit: z.number().default(10) }))
     .query(async ({ input }) => {
-      const technicians = await db.getAllTechnicians();
-      const allBookings = await db.getAllBookings();
+      const technicians = await getAllTechnicians();
+      const allBookings = await getAllBookings();
 
       const techStats = technicians.map((tech) => {
         const techBookings = allBookings.filter((b: any) => b.technicianId === tech.id);
@@ -282,7 +284,7 @@ export const reportsRouter = router({
 
   // تقرير الحجوزات الملغاة
   getCancelledBookings: adminProcedure.query(async () => {
-    const allBookings = await db.getAllBookings();
+    const allBookings = await getAllBookings();
     const cancelled = allBookings.filter((b: any) => b.status === 'cancelled');
 
     return cancelled.map((b: any) => ({

@@ -8,7 +8,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { setupWebSocket } from "../websocket";
+import { setupWebSocket } from "../modules/chat/websocket";
 import savedFiltersRouter from "../routes/saved-filters";
 import badgesRouter from "../routes/badges";
 import { createLogger } from "./logger";

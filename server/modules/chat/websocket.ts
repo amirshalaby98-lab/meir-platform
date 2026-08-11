@@ -1,9 +1,9 @@
-import { createLogger } from "./_core/logger";
+import { createLogger } from "../../_core/logger";
 const log = createLogger("websocket");
 import { WebSocketServer, WebSocket } from "ws";
 import { Server as HTTPServer } from "http";
-import { getDb } from "./db";
-import { messages, conversations, chatNotifications, priceOffers } from "../drizzle/schema";
+import { getDb } from "../../shared/database";
+import { messages, conversations, chatNotifications, priceOffers } from "../../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 interface WebSocketMessage {

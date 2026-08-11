@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { router, publicProcedure, protectedProcedure } from "./_core/trpc";
-import { getDb } from "./db";
+import { router, publicProcedure, protectedProcedure } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
 import {
   conversations,
   messages,
   priceOffers,
   chatParticipants,
   chatNotifications,
-} from "../drizzle/schema";
+} from "../../../drizzle/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 
 export const chatRouter = router({

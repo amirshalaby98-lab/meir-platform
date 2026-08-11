@@ -24,7 +24,7 @@ import { reportsRouter } from "./reports";
 import { notificationsRouter } from "./notifications";
 import { vendorsRouter } from "./modules/vendors";
 import { advancedPricingRouter } from "./advancedPricing";
-import { chatRouter } from "./chat";
+import { chatRouter } from "./modules/chat";
 import { analyticsRouter } from "./analytics";
 import { adminDashboardRouter } from "./adminDashboard";
 import { diagnosticsRouter } from "./modules/diagnostics/router";

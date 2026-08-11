@@ -75,7 +75,16 @@ function securityHeaders(req: express.Request, res: express.Response, next: expr
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(self), bluetooth=(self), web-share=(self)");
   res.setHeader("X-DNS-Prefetch-Control", "off");
-  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+
+  // HSTS and CSP's upgrade-insecure-requests both force the browser to load
+  // everything over HTTPS. Only send them when this request actually arrived
+  // over HTTPS (directly or via a TLS-terminating reverse proxy) - sending
+  // them over a plain HTTP-only deployment makes every sub-resource request
+  // silently fail against a port 443 that isn't listening.
+  const isHttps = req.secure || req.headers["x-forwarded-proto"] === "https";
+  if (isHttps) {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
 
   // Content Security Policy - prevents XSS and injection attacks
   const cspDirectives = [
@@ -89,7 +98,7 @@ function securityHeaders(req: express.Request, res: express.Response, next: expr
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "upgrade-insecure-requests",
+    ...(isHttps ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
   res.setHeader("Content-Security-Policy", cspDirectives);
 
@@ -277,6 +286,7 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 
 async function startServer() {
   const app = express();
+  app.set("trust proxy", 1);
   const server = createServer(app);
 
   // Global middleware (order matters)

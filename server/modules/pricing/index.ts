@@ -5,3 +5,4 @@ export {
   getPriceCalculationsByDateRange,
 } from "./repository";
 export { carDataRouter } from "./router";
+export { advancedPricingRouter } from "./advanced.router";

@@ -1,13 +1,13 @@
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "../../_core/trpc";
 import { z } from "zod";
-import { getDb } from "./db";
+import { getDb } from "../../shared/database";
 import {
   serviceTypes,
   partVariants,
   optionalLabor,
   advancedPriceCalculations,
   pricingSettings,
-} from "../drizzle/schema";
+} from "../../../drizzle/schema";
 import { eq, and, inArray } from "drizzle-orm";
 
 export const advancedPricingRouter = router({

@@ -17,8 +17,7 @@ import { statsModuleRouter } from "./modules/stats";
 import { trackingModuleRouter } from "./modules/tracking";
 
 // Existing standalone routers
-import { coursesRouter } from "./courses";
-import { lessonsRouter } from "./lessons";
+import { coursesRouter, lessonsRouter } from "./modules/courses";
 import { pricingRouter } from "./pricing";
 import { promotionsRouter } from "./promotions";
 import { reportsRouter } from "./reports";

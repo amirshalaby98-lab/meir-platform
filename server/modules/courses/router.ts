@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
-import { courses, lessons } from "../drizzle/schema";
+import { publicProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
+import { courses, lessons } from "../../../drizzle/schema";
 import { eq, like, or, desc } from "drizzle-orm";
 
 /**

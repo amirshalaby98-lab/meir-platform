@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { publicProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
-import { lessons, courses } from "../drizzle/schema";
+import { publicProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
+import { lessons, courses } from "../../../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
 
 /**
@@ -54,7 +54,7 @@ export const lessonsRouter = router({
         .select()
         .from(lessons)
         .where(eq(lessons.courseId, input.courseId));
-      
+
       const lesson = allLessons.find((l: any) => l.slug === input.slug);
       return lesson;
     }),
@@ -80,16 +80,16 @@ export const lessonsRouter = router({
       if (!db) throw new Error("Database not available");
 
       const [result] = await db.insert(lessons).values(input);
-      
+
       // Update course totalLessons
       const courseLessons = await db
         .select()
         .from(lessons)
         .where(eq(lessons.courseId, input.courseId));
-      
+
       await db
         .update(courses)
-        .set({ 
+        .set({
           totalLessons: courseLessons.length + 1,
           totalDuration: courseLessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0) + input.duration
         })
@@ -120,7 +120,7 @@ export const lessonsRouter = router({
 
       const { id, ...data } = input;
       await db.update(lessons).set(data).where(eq(lessons.id, id));
-      
+
       // Update course statistics if duration changed
       if (data.duration !== undefined) {
         const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
@@ -129,10 +129,10 @@ export const lessonsRouter = router({
             .select()
             .from(lessons)
             .where(eq(lessons.courseId, lesson.courseId));
-          
+
           await db
             .update(courses)
-            .set({ 
+            .set({
               totalDuration: courseLessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0)
             })
             .where(eq(courses.id, lesson.courseId));
@@ -153,20 +153,20 @@ export const lessonsRouter = router({
 
       // Get lesson info before deleting
       const [lesson] = await db.select().from(lessons).where(eq(lessons.id, input.id));
-      
+
       if (lesson) {
         // Delete the lesson
         await db.delete(lessons).where(eq(lessons.id, input.id));
-        
+
         // Update course statistics
         const courseLessons = await db
           .select()
           .from(lessons)
           .where(eq(lessons.courseId, lesson.courseId));
-        
+
         await db
           .update(courses)
-          .set({ 
+          .set({
             totalLessons: courseLessons.length,
             totalDuration: courseLessons.reduce((sum: number, l: any) => sum + (l.duration || 0), 0)
           })

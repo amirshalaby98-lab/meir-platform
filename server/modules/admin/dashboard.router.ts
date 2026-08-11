@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { adminProcedure, router } from "./_core/trpc";
-import { getDb } from "./db";
+import { adminProcedure, router } from "../../_core/trpc";
+import { getDb } from "../../shared/database";
 import {
   users,
   bookings,
@@ -10,7 +10,7 @@ import {
   loyaltyPoints,
   courses,
   enrollments,
-} from "../drizzle/schema";
+} from "../../../drizzle/schema";
 import { eq, desc, sql, gte, lte, and, count } from "drizzle-orm";
 
 export const adminDashboardRouter = router({

@@ -1,0 +1,216 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1767037003984,
+      "tag": "0000_secret_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1767037162175,
+      "tag": "0001_volatile_rachel_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1767123990340,
+      "tag": "0002_naive_doctor_doom",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767124534248,
+      "tag": "0003_rare_human_fly",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767124601287,
+      "tag": "0004_flashy_blindfold",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1767126351586,
+      "tag": "0005_worthless_pet_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767501320827,
+      "tag": "0006_shiny_ma_gnuci",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767570292681,
+      "tag": "0007_next_lyja",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1767571228150,
+      "tag": "0008_glamorous_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1767723637800,
+      "tag": "0009_boring_naoko",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1767724047715,
+      "tag": "0010_majestic_dagger",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1767735030627,
+      "tag": "0011_shiny_dust",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1767736468868,
+      "tag": "0012_brown_wasp",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1767874652965,
+      "tag": "0013_spooky_sasquatch",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1767941975130,
+      "tag": "0014_flippant_hellion",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1778672379554,
+      "tag": "0015_faithful_turbo",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1778674585074,
+      "tag": "0016_misty_layla_miller",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1778847424143,
+      "tag": "0017_first_nocturne",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1778852445662,
+      "tag": "0018_loving_forgotten_one",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1778877181618,
+      "tag": "0019_glorious_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1780074004490,
+      "tag": "0020_past_talos",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1780096619559,
+      "tag": "0021_elite_malice",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1780097466279,
+      "tag": "0022_stiff_proemial_gods",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1780345543108,
+      "tag": "0023_needy_bromley",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1780364353812,
+      "tag": "0024_smiling_black_tarantula",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1780366047185,
+      "tag": "0025_small_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1780377600778,
+      "tag": "0026_fearless_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1780380697892,
+      "tag": "0027_lucky_kulan_gath",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1780473368189,
+      "tag": "0028_soft_flatman",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1781630332856,
+      "tag": "0029_lively_forgotten_one",
+      "breakpoints": true
+    }
+  ]
+}

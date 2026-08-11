@@ -1,0 +1,50 @@
+# مير - خدمة صيانة سيارات متنقلة
+# https://meirservic.co
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+Disallow: /instructor/
+Disallow: /vendor-dashboard
+Disallow: /vendor-analytics
+Disallow: /technician-dashboard
+Disallow: /chat
+Disallow: /chat/
+Disallow: /unifonic-settings
+Disallow: /payment
+Disallow: /my-invoices
+Disallow: /booking/
+
+# Allow search engines to crawl public pages
+Allow: /
+Allow: /how-it-works
+Allow: /about
+Allow: /price-calculator
+Allow: /book-technician
+Allow: /track
+Allow: /obd-scanner
+Allow: /ai-diagnosis
+Allow: /courses
+Allow: /parts-market
+Allow: /workshops
+Allow: /consultations
+Allow: /fleet
+Allow: /add-review
+Allow: /vendor-registration
+Allow: /add-service
+Allow: /quizzes
+
+# Sitemap location
+Sitemap: https://meirservic.co/sitemap.xml
+
+# Crawl-delay for polite crawling
+User-agent: Googlebot
+Crawl-delay: 1
+
+User-agent: Bingbot
+Crawl-delay: 2
+
+User-agent: YandexBot
+Crawl-delay: 3

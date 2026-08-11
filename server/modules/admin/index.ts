@@ -1,0 +1,1 @@
+export { adminModuleRouter } from "./router";

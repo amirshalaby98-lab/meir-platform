@@ -1,0 +1,1 @@
+ALTER TABLE `users` ADD `userType` enum('customer','technician','service_provider');

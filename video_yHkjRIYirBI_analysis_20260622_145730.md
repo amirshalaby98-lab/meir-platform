@@ -1,0 +1,3 @@
+I'm sorry, but the video does not contain information about specific OBD2 hex commands (like B1 or 31) for the EEC-V output test mode, nor does it cover how to manually control the EVAP purge solenoid, fuel injectors, or cooling fans. 
+
+The video only demonstrates how to access the instrument cluster's built-in "Engineering Test Mode" to view sensor data and check for stored Diagnostic Trouble Codes (DTCs) without a scan tool, and then uses a basic OBD2 app to verify those codes and read the coolant temperature.

@@ -1,0 +1,20 @@
+CREATE TABLE `price_calculations` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`brandId` int NOT NULL,
+	`brandName` varchar(100) NOT NULL,
+	`modelId` int NOT NULL,
+	`modelName` varchar(100) NOT NULL,
+	`partId` int NOT NULL,
+	`partName` varchar(100) NOT NULL,
+	`distance` int NOT NULL,
+	`laborHours` varchar(10) NOT NULL,
+	`hourlyRate` int NOT NULL,
+	`pricePerKm` int NOT NULL,
+	`laborCost` int NOT NULL,
+	`distanceCost` int NOT NULL,
+	`totalCost` int NOT NULL,
+	`customerIp` varchar(50),
+	`userAgent` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `price_calculations_id` PRIMARY KEY(`id`)
+);

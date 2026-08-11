@@ -15,8 +15,6 @@ import { carDataRouter, advancedPricingRouter, pricingRouter } from "./modules/p
 import { loyaltyModuleRouter } from "./modules/loyalty";
 import { statsModuleRouter } from "./modules/stats";
 import { trackingModuleRouter } from "./modules/tracking";
-
-// Existing standalone routers
 import { coursesRouter, lessonsRouter } from "./modules/courses";
 import { promotionsRouter } from "./modules/promotions";
 import { reportsRouter } from "./modules/reports";
@@ -59,7 +57,7 @@ export const appRouter = router({
   }),
 
   // ═══════════════════════════════════════════════════════════════
-  // Core module routers (new modular structure)
+  // Module routers (server/modules/<domain>/router.ts)
   // ═══════════════════════════════════════════════════════════════
   booking: bookingModuleRouter,
   contact: contactModuleRouter,
@@ -69,16 +67,8 @@ export const appRouter = router({
   tracking: trackingModuleRouter,
   stats: statsModuleRouter,
   loyalty: loyaltyModuleRouter,
-
-  // Users management
   users: usersModuleRouter,
-
-  // Car data management
   carData: carDataRouter,
-
-  // ═══════════════════════════════════════════════════════════════
-  // Feature routers (existing standalone files)
-  // ═══════════════════════════════════════════════════════════════
   courses: coursesRouter,
   lessons: lessonsRouter,
   pricing: pricingRouter,

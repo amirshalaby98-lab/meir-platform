@@ -1,6 +1,6 @@
 # Project Architecture
 
-This document describes the modular architecture of the project, following **Modular Architecture** for the backend and **Feature-Sliced Design (FSD)** for the frontend.
+This document describes the actual, current structure of the project — not an aspirational target. It follows a **Modular Monolith** on the backend. The frontend does not use Feature-Sliced Design; pages and components are organized as a flat, conventional React app.
 
 ## Directory Structure
 
@@ -17,58 +17,51 @@ This document describes the modular architecture of the project, following **Mod
 │   │   ├── audit.ts           # Audit logging
 │   │   ├── notification.ts    # Push notifications
 │   │   └── vite.ts            # Vite dev middleware
-│   ├── modules/               # Business domain modules
-│   │   ├── booking/           # Booking management
-│   │   │   ├── repository.ts  # Data access layer
-│   │   │   └── index.ts       # Public API
-│   │   ├── technicians/       # Technician management
-│   │   ├── reviews/           # Review system
-│   │   ├── users/             # User management
-│   │   ├── contacts/          # Contact messages
-│   │   ├── pricing/           # Car brands, models, parts, pricing
-│   │   ├── analytics/         # Filters, reports, statistics
-│   │   ├── gamification/      # Badges, rewards, leaderboard
-│   │   └── index.ts           # Barrel export
-│   ├── shared/                # Shared utilities
-│   │   ├── database.ts        # Database connection singleton
-│   │   └── index.ts           # Barrel export
-│   ├── routes/                # REST API routes
-│   ├── routers.ts             # tRPC router definitions
-│   ├── db.ts                  # Facade (re-exports from modules)
-│   ├── notifications.ts       # Notification router
-│   ├── analytics.ts           # Analytics router
-│   ├── reports.ts             # Reports router
-│   ├── adminDashboard.ts      # Admin dashboard router
+│   ├── modules/               # Business domain modules (repository.ts + router.ts + index.ts)
+│   │   ├── booking/
+│   │   ├── technicians/
+│   │   ├── reviews/
+│   │   ├── users/
+│   │   ├── contacts/
+│   │   ├── pricing/           # Car brands, models, parts (carData router)
+│   │   ├── analytics/
+│   │   ├── gamification/
+│   │   ├── admin/
+│   │   ├── loyalty/
+│   │   ├── stats/
+│   │   ├── tracking/
+│   │   ├── diagnostics/, consultations/, workshops/, parts-market/, fleet/,
+│   │   │   service-orders/, vehicles/, obd-reports/
+│   │   └── (migration in progress — see below)
+│   ├── shared/                 # Shared server infra
+│   │   └── database.ts         # Database connection singleton
+│   ├── routes/                 # REST API routes (badges, saved-filters, technician)
+│   ├── routers.ts              # tRPC root router (mounts all module + standalone routers)
+│   ├── db.ts                   # Facade re-exporting module repository functions
+│   ├── pricing.ts, chat.ts, vendors.ts, analytics.ts, adminDashboard.ts,
+│   │   reports.ts, advancedPricing.ts, loyalty.ts, sms.ts, courses.ts,
+│   │   lessons.ts, promotions.ts, notifications.ts, websocket.ts, storage.ts
+│   │                            # Standalone routers not yet migrated into server/modules/
+│   │                            # (tracked as ongoing work — see MEIR_TECHNICAL_REVIEW.md)
 │   └── ...
-├── client/                    # Frontend
+├── client/                     # Frontend (plain React + Vite, no FSD layer)
 │   └── src/
-│       ├── features/          # Feature modules (FSD)
-│       │   ├── admin/         # Admin feature
-│       │   │   └── index.ts   # Lazy page factories
-│       │   ├── vendor/        # Vendor feature
-│       │   ├── technician/    # Technician feature
-│       │   ├── courses/       # Courses/learning feature
-│       │   ├── chat/          # Chat feature
-│       │   ├── pricing/       # Pricing feature
-│       │   ├── booking/       # Booking feature
-│       │   ├── home/          # Public pages feature
-│       │   └── index.ts       # Barrel export
-│       ├── shared/            # Shared layer
-│       │   └── index.ts       # Re-exports hooks, utils, services
-│       ├── pages/             # Page components (original location)
-│       ├── components/        # UI components (original location)
-│       ├── hooks/             # Custom hooks
-│       ├── lib/               # Utilities (trpc, cn)
-│       ├── services/          # Service layer
-│       ├── contexts/          # React contexts
-│       ├── _core/             # Core (useAuth)
-│       └── App.tsx            # App shell with routing
-├── shared/                    # Shared between client & server
-│   ├── types.ts               # Shared type definitions
-│   └── const.ts               # Shared constants
-├── drizzle/                   # Database schema & migrations
-│   ├── schema.ts              # Table definitions
-│   └── relations.ts           # Table relations
+│       ├── pages/               # Route-level page components (real structure)
+│       │   └── Admin/           # Admin sub-pages (capital A — see note below)
+│       ├── components/          # Reusable UI components
+│       │   └── ui/              # shadcn/ui primitives
+│       ├── hooks/                # Custom hooks
+│       ├── lib/                  # Utilities (trpc client, cn, OBD/DTC libraries)
+│       ├── services/             # Service layer
+│       ├── contexts/             # React contexts
+│       ├── _core/                # Auth hook
+│       └── App.tsx               # App shell with routing (wouter) and lazy page loading
+├── shared/                     # Shared between client & server
+│   ├── types.ts                # Re-exports Drizzle schema types + error classes
+│   └── const.ts                # Shared constants
+├── drizzle/                    # Database schema & migrations
+│   ├── schema.ts                # Table definitions
+│   └── relations.ts             # Table relations
 └── ...
 ```
 
@@ -77,41 +70,28 @@ This document describes the modular architecture of the project, following **Mod
 | Alias | Resolves To | Usage |
 |-------|-------------|-------|
 | `@/*` | `./client/src/*` | Frontend imports |
-| `@shared/*` | `./shared/*` | Shared types/constants |
-| `@features/*` | `./client/src/features/*` | Feature modules |
-| `@modules/*` | `./server/modules/*` | Backend modules |
+| `@shared/*` | `./shared/*` | Types/constants shared between client and server |
+| `@modules/*` | `./server/modules/*` | Backend domain modules |
 
 ## Architecture Principles
 
-### Backend (Modular Architecture)
+### Backend (Modular Monolith)
 
 Each module in `server/modules/` encapsulates a business domain with:
-- **repository.ts** - Data access layer (database queries)
-- **index.ts** - Public API (barrel export)
+- **repository.ts** — Data access layer (Drizzle queries)
+- **router.ts** — tRPC procedures
+- **index.ts** — Public API (barrel export)
 
-The `server/db.ts` file acts as a **facade** that re-exports from all modules, maintaining backward compatibility with existing code while new code can import directly from modules.
+`server/db.ts` is a facade re-exporting repository functions from already-migrated modules, kept for backward compatibility with older call sites. A number of large routers (`pricing.ts`, `chat.ts`, `vendors.ts`, etc.) still live flat at `server/` and have not yet been moved into `server/modules/`; `server/routers.ts` mounts both migrated modules and these standalone routers under the same `appRouter`, so no client-facing tRPC endpoint path differs based on which side of the migration a router is on.
 
-### Frontend (Feature-Sliced Design)
+### Frontend (conventional React app)
 
-Each feature in `client/src/features/` provides:
-- **Lazy page factories** - Dynamic imports for code splitting
-- **Feature-specific components** (to be migrated incrementally)
+There is no Feature-Sliced Design layer in this codebase. All real page and component code lives directly under `client/src/pages/` and `client/src/components/`, and `App.tsx` wires routes straight to `pages/...` via `React.lazy()`. An earlier attempt at an FSD layer (`features/`, `entities/`, `client/src/shared/`) was scaffolded but never wired into the app (zero real imports) and has been removed — do not reintroduce it without actually migrating real logic into it.
 
-The `client/src/shared/` layer provides re-exports of common hooks, utilities, and services.
-
-## Migration Strategy
-
-This architecture was implemented using an **incremental migration** approach:
-
-1. New modular structure created alongside existing code
-2. `server/db.ts` converted to a facade (re-exports from modules)
-3. Frontend features provide lazy page factories pointing to original locations
-4. Existing imports continue to work unchanged
-5. New code should use `@features/` and `@modules/` aliases
+**Note:** `client/src/pages/Admin.tsx` (a small redirect stub to `/admin/dashboard`) and `client/src/pages/Admin/` (a directory of ~20 real admin sub-pages) intentionally coexist — different roles, not a duplicate. Import paths into `pages/Admin/` must match its capitalization exactly; the filesystem is case-sensitive.
 
 ## Key Design Decisions
 
-- **No breaking changes**: All existing imports continue to work
-- **Gradual migration**: Files can be moved to feature directories incrementally
-- **Code splitting**: React.lazy() applied to all pages via App.tsx
-- **Type safety**: Path aliases configured in both tsconfig.json and vite.config.ts
+- **No breaking changes**: tRPC endpoint paths are stable regardless of a router's physical location.
+- **Facade during migration**: `server/db.ts` lets old and new module code coexist without forcing a big-bang rewrite.
+- **Type safety**: Path aliases configured consistently in both `tsconfig.json` and `vite.config.ts`.

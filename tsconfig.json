@@ -18,7 +18,6 @@
     "paths": {
       "@/*": ["./client/src/*"],
       "@shared/*": ["./shared/*"],
-      "@features/*": ["./client/src/features/*"],
       "@modules/*": ["./server/modules/*"]
     }
   }

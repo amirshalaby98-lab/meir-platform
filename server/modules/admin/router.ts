@@ -16,7 +16,7 @@ import {
 import {
   awardPoints,
   POINTS_PER_BOOKING,
-} from "../../loyalty";
+} from "../loyalty/repository";
 import { getDb } from "../../shared/database";
 import { users } from "../../../drizzle/schema";
 import { eq } from "drizzle-orm";

@@ -7,7 +7,7 @@ import {
   getAvailableRewards,
   getLoyaltyStats,
   REWARDS,
-} from "../../loyalty";
+} from "./repository";
 
 export const loyaltyModuleRouter = router({
   getPoints: protectedProcedure

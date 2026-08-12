@@ -12,6 +12,7 @@ import { setupWebSocket } from "../modules/chat/websocket";
 import savedFiltersRouter from "../routes/saved-filters";
 import badgesRouter from "../routes/badges";
 import { createLogger } from "./logger";
+import { UPLOAD_DIR } from "../shared/storage";
 
 const log = createLogger("server");
 
@@ -315,6 +316,9 @@ async function startServer() {
 
   // OAuth callback
   registerOAuthRoutes(app);
+
+  // Locally-stored uploads (service order videos/photos, etc - see shared/storage.ts)
+  app.use("/uploads", express.static(UPLOAD_DIR));
 
   // REST API routes
   app.use("/api/saved-filters", savedFiltersRouter);

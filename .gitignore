@@ -8,6 +8,9 @@
 # Build outputs
 dist/
 build/
+
+# Locally-stored user uploads (see server/shared/storage.ts)
+/uploads/
 *.dist
 
 # Environment variables

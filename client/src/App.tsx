@@ -103,6 +103,7 @@ const RolesManagement = lazy(() => import("@/pages/Admin/Roles"));
 const ServiceOrdersAdmin = lazy(() => import("@/pages/Admin/ServiceOrders"));
 const UserDetail = lazy(() => import("@/pages/Admin/UserDetail"));
 const PendingTechnicians = lazy(() => import("@/pages/Admin/PendingTechnicians"));
+const TechniciansManagement = lazy(() => import("@/pages/Admin/Technicians"));
 const SiteAnalytics = lazy(() => import("@/pages/Admin/SiteAnalytics"));
 
 // Lazy-loaded pages - SEO Service Pages
@@ -204,6 +205,7 @@ function Router() {
         <Route path="/admin/service-orders" component={ServiceOrdersAdmin} />
         <Route path="/admin/users/:id" component={UserDetail} />
         <Route path="/admin/pending-technicians" component={PendingTechnicians} />
+        <Route path="/admin/technicians" component={TechniciansManagement} />
         {/* SEO Service Pages */}
         <Route path="/services/battery" component={BatteryService} />
         <Route path="/services/starter" component={StarterService} />

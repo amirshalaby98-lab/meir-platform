@@ -1007,15 +1007,14 @@ export class OBDBleService {
       await this.sendCommand("ATL0", 2000);  // Linefeeds off
       await this.sendCommand("ATS0", 2000);  // Spaces off (faster)
       await this.sendCommand("ATH0", 2000);  // Headers off
-      await this.sendCommand("ATAT1", 2000); // Adaptive timing auto1
 
       // Set protocol to auto-detect
       await this.sendCommand("ATSP0", 3000);
 
-      // Enable adaptive timing for faster responses
-      if (this._adaptiveTiming) {
-        await this.sendCommand("ATAT2", 2000); // Aggressive adaptive timing
-      }
+      // Adaptive timing: go straight to the aggressive mode when enabled
+      // (ATAT1 followed immediately by ATAT2 was a wasted round trip, since
+      // ATAT2 always overrides ATAT1 in the default/hot path)
+      await this.sendCommand(this._adaptiveTiming ? "ATAT2" : "ATAT1", 2000);
 
       // Set longer timeout for slower protocols (J1850 PWM/VPW, ISO 9141)
       await this.sendCommand("ATST FF", 2000); // Set timeout to max (255 * 4ms = 1020ms)
@@ -1387,9 +1386,23 @@ export class OBDBleService {
         }
       }
 
-      // Remaining extended PIDs individually (some may not support multi-PID)
+      // Remaining extended PIDs individually (some may not support multi-PID).
+      // Each one is a full round trip over the BLE link to the adapter, so
+      // "CAN is fast enough to read them all every cycle" only holds when the
+      // adapter's own BLE round-trip latency is low - generic/clone BLE-serial
+      // adapters (Nordic UART-style bridges, etc.) can add 100-300ms+ per
+      // command regardless of how fast the vehicle's own CAN bus is. Rotate
+      // priority 2-4 PIDs across cycles the same way the slow-protocol branch
+      // below already does, so a live-data cycle stays a handful of round
+      // trips instead of ~20+ on every single tick. Core PIDs (batch 1) and
+      // the priority-1 group (batch 2) still refresh every cycle.
+      const cyclePhase = this._readCycle % 4;
+      const maxPriority = cyclePhase === 0 ? 1 : cyclePhase === 1 ? 2 : cyclePhase === 2 ? 3 : 4;
+      this._readCycle = (this._readCycle || 0) + 1;
+
       for (const { pid, key, priority } of extPIDs) {
         if (priority <= 1) continue; // Already read in batch 2
+        if (priority > maxPriority) continue;
         if (this._supportedPIDs.size === 0 || this._supportedPIDs.has(pid)) {
           const val = await this.readPID(pid);
           if (val !== null) (data as any)[key] = val;

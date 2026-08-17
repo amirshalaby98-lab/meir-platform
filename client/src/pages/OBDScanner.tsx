@@ -390,6 +390,7 @@ export default function OBDScanner() {
   const [showFactoryValues, setShowFactoryValues] = useState(false);
   const [showMoreTabs, setShowMoreTabs] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const readLoopActiveRef = useRef(false);
   const tickRef = useRef(0);
   const logRef = useRef<HTMLDivElement>(null);
   const chartBufferRef = useRef(new LiveChartBuffer(300));
@@ -579,9 +580,13 @@ export default function OBDScanner() {
   }, [addLog]);
 
   // ═══ Live Reading (Performance Optimized) ═══
-  const startLiveReading = useCallback(() => {
+  // `silent` is used when auto-resuming after a comprehensive scan finishes -
+  // it shouldn't yank the user back to the live tab if they navigated elsewhere.
+  const startLiveReading = useCallback((opts?: { silent?: boolean }) => {
     if (connectionStatus !== "connected") return;
-    setIsReading(true); setActiveTab("live");
+    readLoopActiveRef.current = true;
+    setIsReading(true);
+    if (!opts?.silent) setActiveTab("live");
     if (mode === "real") {
       // Adaptive reading: start with fast core PIDs, then gradually add more
       // This ensures compatibility with slow protocols (J1850 PWM/VPW) and cheap adapters
@@ -711,7 +716,7 @@ export default function OBDScanner() {
       const scheduleNext = () => {
         intervalRef.current = setTimeout(async () => {
           await readLoop();
-          if (obdService.isConnected) scheduleNext();
+          if (obdService.isConnected && readLoopActiveRef.current) scheduleNext();
         }, useFullRead ? 800 : 200) as any; // 200ms gap between fast reads, 800ms for full
       };
       // Wait for first read to complete before scheduling next
@@ -777,7 +782,11 @@ export default function OBDScanner() {
     }
   }, [connectionStatus, mode, selectedMake, addLog, liveData.rpm, liveData.speed, liveData.coolantTemp]);
 
-  const stopLiveReading = useCallback(() => { setIsReading(false); if (intervalRef.current) { clearTimeout(intervalRef.current); clearInterval(intervalRef.current); } }, []);
+  const stopLiveReading = useCallback(() => {
+    readLoopActiveRef.current = false;
+    setIsReading(false);
+    if (intervalRef.current) { clearTimeout(intervalRef.current); clearInterval(intervalRef.current); }
+  }, []);
 
   // ═══ DTC Reading ═══
   const readDTCs = useCallback(async () => {
@@ -847,6 +856,13 @@ export default function OBDScanner() {
 
   // ═══ Full Report ═══
   const generateReport = useCallback(async () => {
+    // The scan and the live-read loop share one BLE command channel - running
+    // both at once just queues the live reads silently behind the scan's many
+    // commands, making the dashboard look frozen. Pause live reading for the
+    // duration of the scan and resume it (without yanking the user's tab)
+    // once it's done.
+    const wasReading = readLoopActiveRef.current;
+    if (wasReading) stopLiveReading();
     setIsScanning(true);
     if (mode === "real") {
       const report = await obdService.generateFullReport();
@@ -879,7 +895,8 @@ export default function OBDScanner() {
       addLog("═══ ✓ اكتمل الفحص الشامل - صحة المحرك: 78% ═══", "info");
     }
     setIsScanning(false); setActiveTab("report");
-  }, [mode, addLog]);
+    if (wasReading) startLiveReading({ silent: true });
+  }, [mode, addLog, stopLiveReading, startLiveReading]);
 
   const exportReport = useCallback(() => {
     if (!fullReport) return;
@@ -1765,7 +1782,7 @@ export default function OBDScanner() {
             ) : (
               <>
                 {!isReading
-                  ? <button onClick={startLiveReading} className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2"><span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />بدء القراءة</button>
+                  ? <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2"><span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />بدء القراءة</button>
                   : <button onClick={stopLiveReading} className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition">■ إيقاف</button>
                 }
                 <button onClick={generateReport} disabled={isScanning} className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2.5 rounded-xl text-sm transition disabled:opacity-40">
@@ -2346,7 +2363,7 @@ export default function OBDScanner() {
 
               {!isReading && (
                 <div className="text-center py-3">
-                  <button onClick={startLiveReading} className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl transition flex items-center gap-2 mx-auto">
+                  <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl transition flex items-center gap-2 mx-auto">
                     <span className="w-3 h-3 bg-green-300 rounded-full animate-pulse" />
                     بدء القراءة الحية المباشرة
                   </button>
@@ -2731,7 +2748,7 @@ export default function OBDScanner() {
                 </div>
               </div>
 
-              {!isReading && <div className="text-center py-4"><button onClick={startLiveReading} className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm">بدء القراءة الحية</button></div>}
+              {!isReading && <div className="text-center py-4"><button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm">بدء القراءة الحية</button></div>}
             </div>
           )}
 
@@ -3353,7 +3370,7 @@ export default function OBDScanner() {
 
                 {!isReading && o2SensorData.length > 0 && (
                   <div className="mt-4 text-center">
-                    <button onClick={startLiveReading} className="bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded-lg">بدء المراقبة المباشرة</button>
+                    <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-2 rounded-lg">بدء المراقبة المباشرة</button>
                   </div>
                 )}
               </div>
@@ -3637,7 +3654,7 @@ export default function OBDScanner() {
 
               {!isReading && (
                 <div className="text-center">
-                  <button onClick={startLiveReading} className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-sm flex items-center gap-2 mx-auto">
+                  <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl text-sm flex items-center gap-2 mx-auto">
                     <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />بدء القراءة المباشرة
                   </button>
                 </div>

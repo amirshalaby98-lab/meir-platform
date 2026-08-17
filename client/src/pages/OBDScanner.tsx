@@ -584,6 +584,9 @@ export default function OBDScanner() {
   // it shouldn't yank the user back to the live tab if they navigated elsewhere.
   const startLiveReading = useCallback((opts?: { silent?: boolean }) => {
     if (connectionStatus !== "connected") return;
+    // Live reading takes priority over an in-progress comprehensive scan -
+    // ask it to stop at its next checkpoint instead of waiting behind it.
+    if (mode === "real" && isScanning) obdService.abortScan();
     readLoopActiveRef.current = true;
     setIsReading(true);
     if (!opts?.silent) setActiveTab("live");
@@ -780,7 +783,7 @@ export default function OBDScanner() {
         setTempHistory((prev) => [...prev.slice(-50), { time: now, value: Math.round(liveData.coolantTemp) }]);
       }, 500);
     }
-  }, [connectionStatus, mode, selectedMake, addLog, liveData.rpm, liveData.speed, liveData.coolantTemp]);
+  }, [connectionStatus, mode, selectedMake, addLog, isScanning, liveData.rpm, liveData.speed, liveData.coolantTemp]);
 
   const stopLiveReading = useCallback(() => {
     readLoopActiveRef.current = false;
@@ -865,10 +868,21 @@ export default function OBDScanner() {
     if (wasReading) stopLiveReading();
     setIsScanning(true);
     if (mode === "real") {
-      const report = await obdService.generateFullReport();
-      setFullReport(report);
-      if (report.engineHealthScore !== undefined) {
-        setEngineHealth(obdService.calculateEngineHealth({ dtcCount: report.dtcCodes.length, readiness: report.readinessTests, mode6Results: report.mode6Results, liveData: report.liveData, alerts: report.alerts }));
+      try {
+        const report = await obdService.generateFullReport();
+        setFullReport(report);
+        if (report.engineHealthScore !== undefined) {
+          setEngineHealth(obdService.calculateEngineHealth({ dtcCount: report.dtcCodes.length, readiness: report.readinessTests, mode6Results: report.mode6Results, liveData: report.liveData, alerts: report.alerts }));
+        }
+      } catch (err: any) {
+        // The user pressed "بدء القراءة" mid-scan - it backed off on purpose, not a real failure
+        if (err?.message === "SCAN_ABORTED") {
+          addLog("⏸ تم إيقاف الفحص الشامل لإعطاء الأولوية للقراءة الحية", "info");
+        } else {
+          addLog(`✗ فشل الفحص الشامل: ${err?.message || err}`, "error");
+        }
+        setIsScanning(false);
+        return;
       }
     } else {
       addLog("═══ بدء الفحص الشامل الاحترافي (محاكاة) ═══", "info");

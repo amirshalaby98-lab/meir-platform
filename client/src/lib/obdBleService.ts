@@ -598,6 +598,7 @@ export class OBDBleService {
   private _multiECU: boolean = false;
   private _ecuHeaders: string[] = [];
   private _readCycle: number = 0; // Cycle counter for rotating PIDs on slow protocols
+  private _scanAbortRequested: boolean = false; // Lets live reading pre-empt an in-progress generateFullReport()
 
   // Callbacks
   private _onLog: LogCallback | null = null;
@@ -2010,6 +2011,7 @@ export class OBDBleService {
       // For CAN protocols, Mode 06 uses TID (Test ID)
       // Format: 06 TID → Response: 46 TID COMP_ID TEST_VALUE MIN MAX
       for (const [testId, testDef] of Object.entries(MODE6_TESTS)) {
+        if (this._scanAbortRequested) break;
         try {
           const response = await this.sendCommand(`06${testId}`, 2500);
           const cleaned = response.replace(/[\s\r\n]/g, "");
@@ -2534,39 +2536,57 @@ export class OBDBleService {
   // FULL SCAN REPORT
   // ═══════════════════════════════════════════════════════
 
+  /** Request that an in-progress generateFullReport() stop at its next checkpoint - used to let live reading take priority over the BLE channel immediately. */
+  abortScan(): void {
+    this._scanAbortRequested = true;
+  }
+
+  private checkScanAbort(): void {
+    if (this._scanAbortRequested) throw new Error("SCAN_ABORTED");
+  }
+
   async generateFullReport(): Promise<ScanReport> {
+    this._scanAbortRequested = false;
     this.log("═══════════════════════════════════════", "info");
     this.log("       بدء الفحص الشامل الاحترافي      ", "info");
     this.log("═══════════════════════════════════════", "info");
 
     // Step 1: Vehicle Info
+    this.checkScanAbort();
     this.log("⟳ [1/7] قراءة معلومات السيارة...", "info");
     const vin = await this.readVIN();
     const protocol = await this.getProtocol();
     const ecuName = await this.readECUName();
 
     // Step 2: Live Data
+    this.checkScanAbort();
     this.log("⟳ [2/7] قراءة البيانات الحية...", "info");
     const liveData = await this.readLiveData();
 
     // Step 3: DTCs
+    this.checkScanAbort();
     this.log("⟳ [3/7] قراءة أكواد الأعطال...", "info");
     const dtcCodes = await this.readDTCs();
     const pendingDtcs = await this.readPendingDTCs();
 
     // Step 4: Freeze Frame
+    this.checkScanAbort();
     this.log("⟳ [4/7] قراءة Freeze Frame...", "info");
     const freezeFrame = await this.readFreezeFrame();
 
-    // Step 5: Mode 6
+    // Step 5: Mode 6 (the slowest step - up to ~17 individual commands, so it
+    // also checks the abort flag between each test, not just before the step)
+    this.checkScanAbort();
     this.log("⟳ [5/7] قراءة اختبارات Mode 6...", "info");
     const mode6Results = await this.readMode6Tests();
 
     // Step 6: Readiness
+    this.checkScanAbort();
     this.log("⟳ [6/7] قراءة I/M Readiness...", "info");
     const readinessTests = await this.readReadiness();
 
     // Step 7: O2 Sensors
+    this.checkScanAbort();
     this.log("⟳ [7/7] قراءة حساسات O2...", "info");
     const o2Sensors = await this.readO2Sensors();
 

@@ -286,6 +286,8 @@ const KNOWN_SERVICES = [
   "49535343-fe7d-4ae5-8fa9-9fafd205e455", // Microchip ISSC
   "0000ab00-0000-1000-8000-00805f9b34fb", // Veepeak
   "0000ffb0-0000-1000-8000-00805f9b34fb", // Carista
+  "6e400001-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART Service - very common in generic/unbranded clones (e.g. DA200-style)
+  "0000ffd0-0000-1000-8000-00805f9b34fb", // Additional generic BLE-serial module range
 ];
 
 /** TX Characteristics (Write to device) */
@@ -296,6 +298,8 @@ const KNOWN_TX_CHARACTERISTICS = [
   "49535343-1e4d-4bd9-ba61-23c647249616",
   "0000ab02-0000-1000-8000-00805f9b34fb",
   "0000ffb2-0000-1000-8000-00805f9b34fb",
+  "6e400002-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART TX (write)
+  "0000ffd1-0000-1000-8000-00805f9b34fb",
 ];
 
 /** RX Characteristics (Read from device) */
@@ -306,6 +310,8 @@ const KNOWN_RX_CHARACTERISTICS = [
   "49535343-8841-43f4-a8d4-ecbe34729bb3",
   "0000ab01-0000-1000-8000-00805f9b34fb",
   "0000ffb1-0000-1000-8000-00805f9b34fb",
+  "6e400003-b5a3-f393-e0a9-e50e24dcca9e", // Nordic UART RX (notify)
+  "0000ffd1-0000-1000-8000-00805f9b34fb",
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -853,12 +859,23 @@ export class OBDBleService {
       } catch { /* try next service */ }
     }
 
-    // Fallback: scan all services
+    // Fallback: scan all services accessible via optionalServices and log what we
+    // actually find, so a device that still fails here can be diagnosed from the
+    // on-screen log instead of guessing - Web Bluetooth only exposes services that
+    // were declared in requestDevice()'s filters/optionalServices, so if this device's
+    // real service UUID isn't in KNOWN_SERVICES, it won't show up here either.
     try {
       const services = await this.server.getPrimaryServices();
+      this.log(`ℹ خدمات متاحة: ${services.length}`, "info");
       for (const service of services) {
         const chars = await service.getCharacteristics();
+        this.log(`ℹ خدمة ${service.uuid} - ${chars.length} خاصية`, "info");
         for (const char of chars) {
+          const props = Object.entries(char.properties)
+            .filter(([, v]) => v)
+            .map(([k]) => k)
+            .join(",");
+          this.log(`  • ${char.uuid} (${props})`, "info");
           if (char.properties.write || char.properties.writeWithoutResponse) {
             if (!this.txCharacteristic) this.txCharacteristic = char;
           }
@@ -867,6 +884,9 @@ export class OBDBleService {
           }
         }
         if (this.txCharacteristic && this.rxCharacteristic) return;
+      }
+      if (services.length === 0) {
+        this.log("✗ لا توجد خدمات متاحة - قد يستخدم الجهاز UUID غير مدعوم", "error");
       }
     } catch (e: any) {
       this.log(`✗ خطأ اكتشاف: ${e.message}`, "error");

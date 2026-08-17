@@ -1695,6 +1695,15 @@ export default function OBDScanner() {
   }, []);
 
   const connected = connectionStatus === "connected";
+
+  // Auto-reveal the connection log the moment a connection attempt fails, so the
+  // diagnostic detail (which BLE service/characteristic UUIDs the device actually
+  // exposes) is visible immediately instead of requiring the user to find a toggle
+  // that used to only exist once already connected.
+  useEffect(() => {
+    if (connectionStatus === "error") setShowLogPanel(true);
+  }, [connectionStatus]);
+
   const severityColor = useCallback((s: string) => s === "high" ? "bg-red-500" : s === "medium" ? "bg-yellow-500" : "bg-blue-500", []);
   const severityText = useCallback((s: string) => s === "high" ? "عالية" : s === "medium" ? "متوسطة" : "منخفضة", []);
 
@@ -1787,10 +1796,12 @@ export default function OBDScanner() {
             <span className="text-gray-400">{vehicleInfo.protocol || "Auto"}</span>
             {vehicleInfo.vin && vehicleInfo.vin !== "غير متاح" && (<><span className="text-gray-700">|</span><span className="text-cyan-400 font-mono">VIN: {vehicleInfo.vin}</span></>)}
             {alerts.length > 0 && (<><span className="text-gray-700">|</span><button onClick={() => setActiveTab("alerts")} className="text-red-400 animate-pulse font-bold">{alerts.length} تنبيه</button></>)}
-            <div className="mr-auto flex items-center gap-2">
-              <button onClick={() => setShowLogPanel(!showLogPanel)} className="text-gray-500 hover:text-gray-300 transition">{showLogPanel ? "إخفاء السجل" : "السجل"}</button>
-            </div>
           </>)}
+          {/* Log toggle is always available, not just while connected - it's most
+              needed exactly when a connection attempt fails (before "connected" is ever true). */}
+          <div className="mr-auto flex items-center gap-2">
+            <button onClick={() => setShowLogPanel(!showLogPanel)} className="text-gray-500 hover:text-gray-300 transition">{showLogPanel ? "إخفاء السجل" : `السجل (${logs.length})`}</button>
+          </div>
         </div>
 
         {/* ═══ Vehicle Auto-Detect Card ═══ */}

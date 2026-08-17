@@ -99,10 +99,14 @@ describe("SEO Configuration", () => {
 
 describe("Footer Links", () => {
   const footerContent = readFileSync(resolve(clientDir, "components/Footer.tsx"), "utf-8");
+  const arTranslations = JSON.parse(
+    readFileSync(resolve(clientDir, "i18n/locales/ar.json"), "utf-8")
+  );
 
   it("has About Us link", () => {
     expect(footerContent).toContain('href="/about"');
-    expect(footerContent).toContain("من نحن");
+    expect(footerContent).toContain('t("footer.about")');
+    expect(arTranslations.footer.about).toBe("من نحن");
   });
 });
 

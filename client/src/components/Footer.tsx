@@ -1,7 +1,9 @@
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin, Heart } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   return (
     <footer className="bg-gray-900 text-white py-12 mt-20">
@@ -9,42 +11,42 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* About Section */}
           <div>
-            <h3 className="text-xl font-bold text-yellow-400 mb-4">عن Meir</h3>
+            <h3 className="text-xl font-bold text-yellow-400 mb-4">{t("footer.aboutTitle")}</h3>
             <p className="text-gray-300 text-sm leading-relaxed">
-              منصة متخصصة في خدمات صيانة السيارات المتنقلة في مكة وجدة. نوفر خدمات احترافية وسريعة بأسعار منافسة.
+              {t("footer.aboutBody")}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-bold text-yellow-400 mb-4">روابط سريعة</h3>
+            <h3 className="text-xl font-bold text-yellow-400 mb-4">{t("footer.quickLinks")}</h3>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><a href="/" className="hover:text-yellow-400 transition-colors">الرئيسية</a></li>
-              <li><a href="/how-it-works" className="hover:text-yellow-400 transition-colors">كيف يعمل</a></li>
-              <li><a href="/courses" className="hover:text-yellow-400 transition-colors">الدورات</a></li>
-              <li><a href="/vendor-registration" className="hover:text-yellow-400 transition-colors">انضم كبائع</a></li>
-              <li><a href="/about" className="hover:text-yellow-400 transition-colors">من نحن</a></li>
+              <li><a href="/" className="hover:text-yellow-400 transition-colors">{t("footer.home")}</a></li>
+              <li><a href="/how-it-works" className="hover:text-yellow-400 transition-colors">{t("footer.howItWorks")}</a></li>
+              <li><a href="/courses" className="hover:text-yellow-400 transition-colors">{t("footer.courses")}</a></li>
+              <li><a href="/vendor-registration" className="hover:text-yellow-400 transition-colors">{t("footer.joinAsVendor")}</a></li>
+              <li><a href="/about" className="hover:text-yellow-400 transition-colors">{t("footer.about")}</a></li>
             </ul>
           </div>
 
           {/* Services */}
           <div>
-            <h3 className="text-xl font-bold text-yellow-400 mb-4">الخدمات</h3>
+            <h3 className="text-xl font-bold text-yellow-400 mb-4">{t("footer.servicesTitle")}</h3>
             <ul className="space-y-2 text-gray-300 text-sm">
-              <li><a href="#" className="hover:text-yellow-400 transition-colors">صيانة دورية</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition-colors">تشخيص أعطال</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition-colors">خدمة طوارئ</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition-colors">قطع غيار</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.periodicMaintenance")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.faultDiagnosis")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.emergencyService")}</a></li>
+              <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.spareParts")}</a></li>
             </ul>
           </div>
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-xl font-bold text-yellow-400 mb-4">تواصل معنا</h3>
+            <h3 className="text-xl font-bold text-yellow-400 mb-4">{t("footer.contactUs")}</h3>
             <div className="space-y-3 text-gray-300 text-sm">
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-yellow-400" />
-                <a href="tel:+966543257872" className="hover:text-yellow-400 transition-colors">+966 54 325 7872</a>
+                <a href="tel:+966543257872" className="hover:text-yellow-400 transition-colors" dir="ltr">+966 54 325 7872</a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-yellow-400" />
@@ -52,7 +54,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-yellow-400" />
-                <span>مكة المكرمة - جدة</span>
+                <span>{t("footer.location")}</span>
               </div>
             </div>
           </div>
@@ -60,7 +62,7 @@ export default function Footer() {
 
         {/* Social Media */}
         <div className="border-t border-gray-700 pt-8 mb-8">
-          <h3 className="text-lg font-bold text-yellow-400 mb-4">تابعنا</h3>
+          <h3 className="text-lg font-bold text-yellow-400 mb-4">{t("footer.followUs")}</h3>
           <div className="flex gap-4">
             <a href="#" className="bg-gray-800 hover:bg-yellow-400 p-2 rounded-full transition-colors">
               <Facebook className="w-5 h-5 text-white hover:text-black" />
@@ -81,17 +83,17 @@ export default function Footer() {
         <div className="border-t border-gray-700 pt-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-400 text-sm mb-4">
             <div>
-              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">الشروط والأحكام</a>
+              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">{t("footer.termsAndConditions")}</a>
             </div>
             <div>
-              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">سياسة الخصوصية</a>
+              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">{t("footer.privacyPolicy")}</a>
             </div>
             <div>
-              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">سياسة الاسترجاع</a>
+              <a href="/terms-of-service" className="hover:text-yellow-400 transition-colors">{t("footer.refundPolicy")}</a>
             </div>
           </div>
           <div className="text-center text-gray-500 text-xs">
-            <p>&copy; {currentYear} منصة Meir. جميع الحقوق محفوظة.</p>
+            <p>&copy; {currentYear} Meir. {t("footer.rightsReserved")}.</p>
           </div>
         </div>
       </div>

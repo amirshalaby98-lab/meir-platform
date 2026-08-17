@@ -1,0 +1,107 @@
+{
+  "common": {
+    "requestService": "Request a Service",
+    "freeDiagnosis": "Free Smart Diagnosis"
+  },
+  "header": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Our Services",
+    "requestService": "Request Service",
+    "smartDiagnosis": "Smart Diagnosis",
+    "howItWorks": "How It Works",
+    "myOrders": "My Orders",
+    "technicianPanel": "Technician Panel",
+    "adminPanel": "Admin",
+    "myAccount": "My Account",
+    "logout": "Logout",
+    "signOut": "Sign Out",
+    "login": "Sign In",
+    "whatsapp": "WhatsApp",
+    "whatsappContact": "Contact via WhatsApp"
+  },
+  "footer": {
+    "aboutTitle": "About Meir",
+    "aboutBody": "A platform specialized in mobile car maintenance services in Makkah and Jeddah. We provide fast, professional service at competitive prices.",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "howItWorks": "How It Works",
+    "courses": "Courses",
+    "joinAsVendor": "Join as a Vendor",
+    "about": "About Us",
+    "servicesTitle": "Services",
+    "periodicMaintenance": "Periodic Maintenance",
+    "faultDiagnosis": "Fault Diagnosis",
+    "emergencyService": "Emergency Service",
+    "spareParts": "Spare Parts",
+    "contactUs": "Contact Us",
+    "location": "Makkah - Jeddah",
+    "followUs": "Follow Us",
+    "termsAndConditions": "Terms & Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund Policy",
+    "rightsReserved": "All rights reserved"
+  },
+  "about": {
+    "heroTitle": "Meir... A Saudi Arabian Platform That Starts With Diagnosis and Ends With the Solution",
+    "heroSubtitle": "We inspect, analyze, advise, and connect you to the right solution",
+    "introTitle": "About Us",
+    "introParagraphs": [
+      "Meir is a Saudi Arabian platform specialized in vehicle fault diagnosis and smart technical services, founded to bring about a qualitative shift in the automotive sector by building an integrated digital ecosystem that combines technology, expertise, and national talent.",
+      "The idea behind Meir grew out of a real, everyday problem faced by vehicle owners: inaccurate diagnosis, inflated repair costs, unnecessary parts replacement, and difficulty finding the right service provider.",
+      "That's why Meir set out to change the way car services work — because we believe successful repair starts with an accurate diagnosis."
+    ],
+    "scannerTitle": "The First Saudi Arabian Platform With Its Own Dedicated Scanner Device",
+    "scannerBody": "We're proud at Meir to have developed a scanner device that carries the platform's own identity, as part of an integrated system designed to read vehicle data, analyze faults, interpret inspection results, and provide precise technical advice that helps vehicle owners understand their car's problems and make the right decision. Our services aren't limited to reading fault codes — we provide comprehensive fault analysis built on data, experience, and modern technology.",
+    "customerRightsTitle": "Protecting Customer Rights",
+    "customerRightsIntro": "At Meir, we believe every customer deserves fair, transparent service. That's why we work to:",
+    "customerRightsItems": [
+      "Reduce unnecessary repair work",
+      "Cut down on money wasted due to inaccurate diagnosis",
+      "Protect customers from having parts replaced without genuine need",
+      "Provide clear information before any repair begins",
+      "Help customers make the right decision"
+    ],
+    "networkTitle": "Connecting Customers to the Right Solution",
+    "networkIntro": "Meir provides an integrated system that connects vehicle owners with:",
+    "networkItems": [
+      "Certified workshops",
+      "Mobile technicians",
+      "Fault-diagnosis specialists",
+      "Experts and consultants",
+      "Spare parts suppliers",
+      "Providers of genuine, trusted spare parts"
+    ],
+    "networkOutro": "We make sure every customer reaches the right person, in the right place, to get the best possible service.",
+    "qualityTitle": "Quality Is the Foundation of Our Work",
+    "qualityIntro": "At Meir, joining the platform is only possible under specific technical and professional standards. We evaluate every service provider against criteria including:",
+    "qualityItems": [
+      "Technical competence",
+      "Practical experience",
+      "Quality of work",
+      "Adherence to professional standards",
+      "Customer satisfaction",
+      "Transparency and reliability"
+    ],
+    "qualityOutro": "Our goal is to build a professional network that guarantees high-quality service while protecting the rights of everyone involved.",
+    "trainingTitle": "Training and Developing Saudi Youth",
+    "trainingBody": "Meir's vision isn't limited to delivering services — it extends to investing in people. We work to train and qualify Saudi youth for careers in vehicle fault diagnosis, maintenance, mobile services, and modern technology, helping create new job opportunities and support national talent.",
+    "communityTitle": "Community Impact",
+    "communityIntro": "Meir believes its true success is measured by its positive impact on the community. That's why we strive to:",
+    "communityItems": [
+      "Support and empower Saudi youth",
+      "Create new job opportunities",
+      "Raise the standard of technical services",
+      "Spread a culture of accurate diagnosis",
+      "Support digital transformation in the automotive sector",
+      "Build a professional community built on knowledge, experience, and quality"
+    ],
+    "visionTitle": "Our Vision",
+    "visionBody": "To be the leading Saudi Arabian platform for vehicle fault diagnosis and smart technical services, and to become the go-to reference connecting vehicle owners with service providers through innovative technical solutions.",
+    "missionTitle": "Our Mission",
+    "missionBody": "To deliver a complete experience that starts with accurate diagnosis, continues through expert technical consultation, and ends with reaching the right solution — through a digital ecosystem that brings vehicle owners, workshops, technicians, experts, and parts suppliers together on one platform.",
+    "closingLine": "Meir... we inspect, analyze, advise, and connect you to the right solution.",
+    "ctaTitle": "Ready to Try Our Services?",
+    "ctaSubtitle": "Request a service now and enjoy professional maintenance that comes to you, wherever you are"
+  }
+}

@@ -2,12 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Phone, Menu, X, Wrench, User, LogIn, LogOut, ClipboardList, Info, Cpu, Shield } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, loading, logout } = useAuth();
+  const { t } = useTranslation();
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
@@ -23,25 +26,25 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-5">
           <Link href="/about" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
             <Info className="w-4 h-4" />
-            من نحن
+            {t("header.about")}
           </Link>
           <a href="#services" className="text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
-            خدماتنا
+            {t("header.services")}
           </a>
           <Link href="/service-request" className="flex items-center gap-1.5 text-yellow-600 hover:text-yellow-700 transition-colors font-bold text-sm">
             <Wrench className="w-4 h-4" />
-            اطلب خدمة
+            {t("header.requestService")}
           </Link>
           <Link href="/obd-scanner" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
             <Cpu className="w-4 h-4" />
-            تشخيص ذكي
+            {t("header.smartDiagnosis")}
           </Link>
 
           {/* طلباتي - يظهر فقط للمسجلين */}
           {user && (
             <Link href="/my-orders" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
               <ClipboardList className="w-4 h-4" />
-              طلباتي
+              {t("header.myOrders")}
             </Link>
           )}
 
@@ -49,7 +52,7 @@ export default function Header() {
           {user && (user.role === 'technician' || user.role === 'admin') && (
             <Link href="/technician-orders" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
               <Wrench className="w-4 h-4" />
-              لوحة الفني
+              {t("header.technicianPanel")}
             </Link>
           )}
 
@@ -57,9 +60,11 @@ export default function Header() {
           {user && user.role === 'admin' && (
             <Link href="/admin" className="flex items-center gap-1.5 text-red-600 hover:text-red-700 transition-colors font-medium text-sm">
               <Shield className="w-4 h-4" />
-              الإدارة
+              {t("header.adminPanel")}
             </Link>
           )}
+
+          <LanguageSwitcher />
 
           {/* زر تسجيل الدخول / حسابي / تسجيل خروج */}
           {!loading && (
@@ -69,7 +74,7 @@ export default function Header() {
                   <Link href="/my-orders">
                     <Button variant="outline" className="border-yellow-400 text-yellow-700 hover:bg-yellow-50 font-bold flex items-center gap-2">
                       <User className="w-4 h-4" />
-                      {user.name?.split(" ")[0] || "حسابي"}
+                      {user.name?.split(" ")[0] || t("header.myAccount")}
                     </Button>
                   </Link>
                   <Button
@@ -79,14 +84,14 @@ export default function Header() {
                     className="text-red-500 hover:text-red-700 hover:bg-red-50 flex items-center gap-1"
                   >
                     <LogOut className="w-4 h-4" />
-                    خروج
+                    {t("header.logout")}
                   </Button>
                 </div>
               ) : (
                 <a href={getLoginUrl()}>
                   <Button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold shadow-lg flex items-center gap-2">
                     <LogIn className="w-4 h-4" />
-                    تسجيل / دخول
+                    {t("header.login")}
                   </Button>
                 </a>
               )}
@@ -100,18 +105,21 @@ export default function Header() {
           >
             <Button className="bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg flex items-center gap-2">
               <Phone className="w-4 h-4" />
-              واتساب
+              {t("header.whatsapp")}
             </Button>
           </a>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-gray-700 hover:text-yellow-400 transition-colors"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile: language switcher + menu button */}
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitcher />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-gray-700 hover:text-yellow-400 transition-colors"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -120,25 +128,25 @@ export default function Header() {
           <nav className="container py-4 space-y-3">
             <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
               <Info className="w-4 h-4" />
-              من نحن
+              {t("header.about")}
             </Link>
             <a href="#services" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-yellow-500 font-medium py-2">
-              خدماتنا
+              {t("header.services")}
             </a>
             <Link href="/service-request" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-bold py-2 text-lg">
               <Wrench className="w-5 h-5" />
-              اطلب خدمة
+              {t("header.requestService")}
             </Link>
             <Link href="/obd-scanner" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
               <Cpu className="w-4 h-4" />
-              تشخيص ذكي
+              {t("header.smartDiagnosis")}
             </Link>
 
             {/* طلباتي - يظهر فقط للمسجلين */}
             {user && (
               <Link href="/my-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
                 <ClipboardList className="w-4 h-4" />
-                طلباتي
+                {t("header.myOrders")}
               </Link>
             )}
 
@@ -146,7 +154,7 @@ export default function Header() {
             {user && (user.role === 'technician' || user.role === 'admin') && (
               <Link href="/technician-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium py-2">
                 <Wrench className="w-4 h-4" />
-                لوحة الفني
+                {t("header.technicianPanel")}
               </Link>
             )}
 
@@ -154,7 +162,7 @@ export default function Header() {
             {user && user.role === 'admin' && (
               <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium py-2">
                 <Shield className="w-4 h-4" />
-                لوحة الإدارة
+                {t("header.adminPanel")}
               </Link>
             )}
 
@@ -166,7 +174,7 @@ export default function Header() {
                     <Link href="/my-orders" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full border-yellow-400 text-yellow-700 hover:bg-yellow-50 font-bold flex items-center justify-center gap-2">
                         <User className="w-5 h-5" />
-                        {user.name || "حسابي"}
+                        {user.name || t("header.myAccount")}
                       </Button>
                     </Link>
                     <Button
@@ -175,14 +183,14 @@ export default function Header() {
                       className="w-full border-red-300 text-red-600 hover:bg-red-50 font-bold flex items-center justify-center gap-2"
                     >
                       <LogOut className="w-5 h-5" />
-                      تسجيل خروج
+                      {t("header.signOut")}
                     </Button>
                   </>
                 ) : (
                   <a href={getLoginUrl()}>
                     <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold shadow-lg flex items-center justify-center gap-2">
                       <LogIn className="w-5 h-5" />
-                      تسجيل / دخول
+                      {t("header.login")}
                     </Button>
                   </a>
                 )}
@@ -197,7 +205,7 @@ export default function Header() {
             >
               <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg flex items-center justify-center gap-2">
                 <Phone className="w-5 h-5" />
-                تواصل واتساب
+                {t("header.whatsappContact")}
               </Button>
             </a>
           </nav>

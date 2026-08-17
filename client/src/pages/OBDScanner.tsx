@@ -2497,6 +2497,16 @@ export default function OBDScanner() {
                 </div>
               )}
 
+              {/* Live reading is paused while a comprehensive scan runs, since both
+                  share the same single-command BLE channel to the adapter - without
+                  this notice the tiles below just look frozen/broken to the user. */}
+              {isScanning && (
+                <div className="bg-purple-500/10 border border-purple-500/40 rounded-xl p-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse flex-shrink-0" />
+                  <span className="text-purple-300 text-sm font-medium">القراءة الحية متوقفة مؤقتًا - جاري الفحص الشامل، الأرقام هترجع تتحدث بعد ما يخلص</span>
+                </div>
+              )}
+
               {/* Main Gauges - RPM, Speed, Temp - BIG and CLEAR */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="bg-gray-900 border-2 border-red-500/30 rounded-xl p-4 text-center">

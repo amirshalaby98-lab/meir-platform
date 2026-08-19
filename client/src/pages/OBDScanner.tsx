@@ -1795,13 +1795,21 @@ export default function OBDScanner() {
               </>
             ) : (
               <>
-                {!isReading
-                  ? <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2"><span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />بدء القراءة</button>
-                  : <button onClick={stopLiveReading} className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition">■ إيقاف</button>
-                }
-                <button onClick={generateReport} disabled={isScanning} className="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2.5 rounded-xl text-sm transition disabled:opacity-40">
-                  {isScanning ? "فحص..." : "فحص شامل"}
-                </button>
+                {/* بدء/إيقاف القراءة الحية والفحص الشامل صارت من داخل التابات الخاصة
+                    بيهم (live / report) - مش هنا، عشان محدش يتنافس مع التاني على
+                    قناة البلوتوث من غير قصد. هنا مجرد مؤشر حالة. */}
+                {isReading && (
+                  <span className="flex items-center gap-1.5 text-green-400 text-xs font-medium px-3 py-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    القراءة الحية شغالة
+                  </span>
+                )}
+                {isScanning && (
+                  <span className="flex items-center gap-1.5 text-purple-400 text-xs font-medium px-3 py-2">
+                    <span className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
+                    جاري الفحص الشامل
+                  </span>
+                )}
                 <button
                   onClick={() => setProMode(p => !p)}
                   className={`px-4 py-2.5 rounded-xl text-sm font-bold transition ${
@@ -2368,7 +2376,7 @@ export default function OBDScanner() {
                   <div className="text-xs font-medium">اختبارات Mode 6</div>
                   <div className="text-[10px] text-gray-500">O2, Catalyst, EGR</div>
                 </button>
-                <button onClick={generateReport} disabled={isScanning} className="bg-purple-900/30 hover:bg-purple-900/50 border border-purple-500/30 rounded-xl p-4 text-center transition group disabled:opacity-50">
+                <button onClick={() => setActiveTab("report")} className="bg-purple-900/30 hover:bg-purple-900/50 border border-purple-500/30 rounded-xl p-4 text-center transition group">
                   <div className="text-2xl mb-1 group-hover:scale-110 transition">📋</div>
                   <div className="text-xs font-medium text-purple-300">{isScanning ? "جاري الفحص..." : "فحص شامل"}</div>
                   <div className="text-[10px] text-gray-500">جميع الأوضاع</div>
@@ -2390,10 +2398,17 @@ export default function OBDScanner() {
           {activeTab === "live" && (
             <div className="space-y-5">
               {/* زر رجوع */}
-              <button onClick={() => setActiveTab("home")} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                الرئيسية
-              </button>
+              <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <button onClick={() => setActiveTab("home")} className="text-gray-400 hover:text-white text-sm flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                  الرئيسية
+                </button>
+                {/* هذا التاب مستقل عن الفحص الشامل - بدء/إيقاف القراءة الحية من هنا فقط */}
+                {!isReading
+                  ? <button onClick={() => startLiveReading()} className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition flex items-center gap-2"><span className="w-2 h-2 bg-green-300 rounded-full animate-pulse" />بدء القراءة الحية</button>
+                  : <button onClick={stopLiveReading} className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition">■ إيقاف القراءة</button>
+                }
+              </div>
 
               {/* ═══ Pro Mode Banner ═══ */}
               {proMode && (
@@ -3986,6 +4001,34 @@ export default function OBDScanner() {
                 ].map(([label, val]) => (
                   <div key={label} className="bg-gray-800/50 rounded-lg p-3 border border-gray-700/50"><div className="text-[10px] text-gray-400">{label}</div><div className="text-sm font-medium mt-1">{val}</div></div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ═══ REPORT TAB (empty state) ═══ */}
+          {/* This tab is the dedicated home for الفحص الشامل (generateReport) -
+              independent of القراءة الحية, with its own start trigger here. */}
+          {activeTab === "report" && !fullReport && (
+            <div className="space-y-4">
+              <button onClick={() => setActiveTab("home")} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                الرئيسية
+              </button>
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 text-center">
+                <div className="text-4xl mb-3">📋</div>
+                <h2 className="text-xl font-bold text-white mb-2">الفحص الشامل</h2>
+                <p className="text-gray-400 text-sm mb-6">يقرأ VIN، أكواد الأعطال، Freeze Frame، اختبارات Mode 6، جاهزية الفحص، وحساسات O2 دفعة واحدة</p>
+                {connectionStatus === "connected" ? (
+                  <button
+                    onClick={generateReport}
+                    disabled={isScanning}
+                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 text-white font-bold px-8 py-4 rounded-xl text-lg transition disabled:opacity-50"
+                  >
+                    {isScanning ? "⏳ جاري الفحص الشامل..." : "🔍 بدء الفحص الشامل"}
+                  </button>
+                ) : (
+                  <p className="text-gray-500 text-sm">وصّل الجهاز أولاً من الصفحة الرئيسية</p>
+                )}
               </div>
             </div>
           )}

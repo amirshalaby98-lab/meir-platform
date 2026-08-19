@@ -638,43 +638,52 @@ export default function OBDScanner() {
             } catch { /* Ford PIDs optional - don't break main loop */ }
           }
           
-          const prev_liveData = liveData;
-          const newLiveData: LiveData = {
-            rpm: data.rpm ?? prev_liveData.rpm, speed: data.speed ?? prev_liveData.speed,
-            coolantTemp: data.coolantTemp ?? prev_liveData.coolantTemp, engineLoad: data.engineLoad ?? prev_liveData.engineLoad,
-            throttlePos: data.throttlePos ?? prev_liveData.throttlePos, fuelLevel: data.fuelLevel ?? prev_liveData.fuelLevel,
-            mafRate: data.mafRate ?? prev_liveData.mafRate, timingAdvance: data.timingAdvance ?? prev_liveData.timingAdvance,
-            voltage: data.voltage ?? prev_liveData.voltage, intakeTemp: data.intakeTemp ?? prev_liveData.intakeTemp,
-            oilTemp: data.oilTemp ?? prev_liveData.oilTemp, fuelPressure: data.fuelPressure ?? prev_liveData.fuelPressure,
-            shortFuelTrim: data.shortFuelTrim ?? prev_liveData.shortFuelTrim, longFuelTrim: data.longFuelTrim ?? prev_liveData.longFuelTrim,
-            instantFuelConsumption: data.instantFuelConsumption ?? prev_liveData.instantFuelConsumption,
-            barometricPressure: data.barometricPressure ?? prev_liveData.barometricPressure,
-            catalystTemp: data.catalystTempB1S1 ?? prev_liveData.catalystTemp,
-            fuelRailPressure: data.fuelRailPressure ?? prev_liveData.fuelRailPressure,
-            commandedEGR: data.commandedEGR ?? prev_liveData.commandedEGR,
-            engineTorque: data.engineTorque ?? prev_liveData.engineTorque,
-            ambientTemp: data.ambientTemp ?? prev_liveData.ambientTemp,
-            runTime: data.runTime ?? prev_liveData.runTime,
-            distanceWithMIL: data.distanceWithMIL ?? prev_liveData.distanceWithMIL,
-            intakeMAP: data.intakeMAP ?? prev_liveData.intakeMAP,
-            transmissionTemp: fordTransTemp || data.transmissionTemp || prev_liveData.transmissionTemp,
-            turboBoost: fordTurbo || data.boostPressure || prev_liveData.turboBoost,
-            absoluteThrottle: data.throttlePos ?? prev_liveData.absoluteThrottle,
-            boostPressure: data.boostPressure ?? prev_liveData.boostPressure,
-            fuelSystemStatus: data.fuelSystemStatus ?? prev_liveData.fuelSystemStatus,
-            commandedThrottle: data.commandedThrottle ?? prev_liveData.commandedThrottle,
-            absoluteLoad: data.absoluteLoad ?? prev_liveData.absoluteLoad,
-            relativeThrottle: data.relativeThrottle ?? prev_liveData.relativeThrottle,
-            ethanolPercent: data.ethanolPercent ?? prev_liveData.ethanolPercent,
-            turboRPM: data.turboRPM ?? prev_liveData.turboRPM,
-            exhaustPressure: data.exhaustPressure ?? prev_liveData.exhaustPressure,
-            dpfTemp: data.dpfTemp ?? prev_liveData.dpfTemp,
-            noxSensor: data.noxSensor ?? prev_liveData.noxSensor,
-            fuelInjectionTiming: data.fuelInjectionTiming ?? prev_liveData.fuelInjectionTiming,
-            acceleratorPedalD: data.acceleratorPedalD ?? prev_liveData.acceleratorPedalD,
-            acceleratorPedalE: data.acceleratorPedalE ?? prev_liveData.acceleratorPedalE,
-          };
-          setLiveData(newLiveData);
+          // readLoop is a long-lived closure (defined once per startLiveReading()
+          // call, then re-invoked every cycle via the recursive setTimeout chain),
+          // so a plain `liveData` reference here would always read the ONE stale
+          // snapshot from the moment reading started, not the latest state. Any
+          // PID that ever failed a read would then silently fall back to that
+          // frozen snapshot forever instead of the last real value - use the
+          // functional setState form so every cycle merges against current state.
+          let newLiveData!: LiveData;
+          setLiveData((prev) => {
+            newLiveData = {
+              rpm: data.rpm ?? prev.rpm, speed: data.speed ?? prev.speed,
+              coolantTemp: data.coolantTemp ?? prev.coolantTemp, engineLoad: data.engineLoad ?? prev.engineLoad,
+              throttlePos: data.throttlePos ?? prev.throttlePos, fuelLevel: data.fuelLevel ?? prev.fuelLevel,
+              mafRate: data.mafRate ?? prev.mafRate, timingAdvance: data.timingAdvance ?? prev.timingAdvance,
+              voltage: data.voltage ?? prev.voltage, intakeTemp: data.intakeTemp ?? prev.intakeTemp,
+              oilTemp: data.oilTemp ?? prev.oilTemp, fuelPressure: data.fuelPressure ?? prev.fuelPressure,
+              shortFuelTrim: data.shortFuelTrim ?? prev.shortFuelTrim, longFuelTrim: data.longFuelTrim ?? prev.longFuelTrim,
+              instantFuelConsumption: data.instantFuelConsumption ?? prev.instantFuelConsumption,
+              barometricPressure: data.barometricPressure ?? prev.barometricPressure,
+              catalystTemp: data.catalystTempB1S1 ?? prev.catalystTemp,
+              fuelRailPressure: data.fuelRailPressure ?? prev.fuelRailPressure,
+              commandedEGR: data.commandedEGR ?? prev.commandedEGR,
+              engineTorque: data.engineTorque ?? prev.engineTorque,
+              ambientTemp: data.ambientTemp ?? prev.ambientTemp,
+              runTime: data.runTime ?? prev.runTime,
+              distanceWithMIL: data.distanceWithMIL ?? prev.distanceWithMIL,
+              intakeMAP: data.intakeMAP ?? prev.intakeMAP,
+              transmissionTemp: fordTransTemp || data.transmissionTemp || prev.transmissionTemp,
+              turboBoost: fordTurbo || data.boostPressure || prev.turboBoost,
+              absoluteThrottle: data.throttlePos ?? prev.absoluteThrottle,
+              boostPressure: data.boostPressure ?? prev.boostPressure,
+              fuelSystemStatus: data.fuelSystemStatus ?? prev.fuelSystemStatus,
+              commandedThrottle: data.commandedThrottle ?? prev.commandedThrottle,
+              absoluteLoad: data.absoluteLoad ?? prev.absoluteLoad,
+              relativeThrottle: data.relativeThrottle ?? prev.relativeThrottle,
+              ethanolPercent: data.ethanolPercent ?? prev.ethanolPercent,
+              turboRPM: data.turboRPM ?? prev.turboRPM,
+              exhaustPressure: data.exhaustPressure ?? prev.exhaustPressure,
+              dpfTemp: data.dpfTemp ?? prev.dpfTemp,
+              noxSensor: data.noxSensor ?? prev.noxSensor,
+              fuelInjectionTiming: data.fuelInjectionTiming ?? prev.fuelInjectionTiming,
+              acceleratorPedalD: data.acceleratorPedalD ?? prev.acceleratorPedalD,
+              acceleratorPedalE: data.acceleratorPedalE ?? prev.acceleratorPedalE,
+            };
+            return newLiveData;
+          });
           
           // Update Min/Max/Avg stats
           setLiveStats((prev) => {

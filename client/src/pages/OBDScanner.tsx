@@ -721,7 +721,6 @@ export default function OBDScanner() {
           await new Promise(r => setTimeout(r, 500));
         }
       };
-      readLoop();
       // Polling interval: adaptive based on protocol
       // Fast reads (5 PIDs) complete in ~2-3s on slow protocols, ~500ms on CAN
       // Don't use setInterval - use recursive setTimeout to avoid overlapping reads
@@ -731,8 +730,12 @@ export default function OBDScanner() {
           if (obdService.isConnected && readLoopActiveRef.current) scheduleNext();
         }, useFullRead ? 800 : 200) as any; // 200ms gap between fast reads, 800ms for full
       };
-      // Wait for first read to complete before scheduling next
-      setTimeout(scheduleNext, 100);
+      // A single read cycle over BLE routinely takes well over 100ms, so a
+      // fixed setTimeout(scheduleNext, 100) here (the old code) could arm the
+      // next cycle before this first one actually finished - two overlapping
+      // readLoop() calls both touching the BLE mutex at once. Wait for the
+      // real completion instead of guessing a delay.
+      readLoop().then(scheduleNext);
     } else {
       intervalRef.current = setInterval(() => {
         tickRef.current++;

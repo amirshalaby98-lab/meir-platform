@@ -578,7 +578,6 @@ export class OBDBleService {
 
   // Mutex/Lock - منع إرسال أوامر متوازية
   private _commandMutex: Promise<void> = Promise.resolve();
-  private _mutexRelease: (() => void) | null = null;
   private _commandInProgress: boolean = false;
 
   // Error Handler موحد
@@ -631,21 +630,31 @@ export class OBDBleService {
   private setStatus(status: ConnectionStatus) { this._status = status; this._onStatusChange?.(status); }
 
   // ═══ Mutex/Lock — منع إرسال أوامر متوازية ═══
-  private async acquireMutex(): Promise<void> {
-    let release: () => void;
+  // Returns a release function private to THIS acquisition, instead of storing
+  // it on a shared instance field. The old version wrote the release function
+  // to `this._mutexRelease` - if a second call raced in before the first had
+  // released (e.g. the live-read loop's initial synchronous read overlapping
+  // with its own first scheduled retry, which happens easily once a single
+  // read cycle takes longer than the ~200-300ms polling interval), the second
+  // call's assignment silently overwrote the first's, so the first caller's
+  // `finally` block ended up releasing the SECOND caller's lock instead of its
+  // own. The lock that caller was actually waiting on then never resolved,
+  // permanently deadlocking every command issued after that point - which is
+  // exactly why live reading would get one good read and then never update
+  // again, with no error, until the loop was manually stopped and restarted.
+  private async acquireMutex(): Promise<() => void> {
     const prev = this._commandMutex;
+    let release!: () => void;
     this._commandMutex = new Promise<void>((resolve) => { release = resolve; });
-    this._mutexRelease = release!;
     await prev;
     this._commandInProgress = true;
-  }
-
-  private releaseMutex(): void {
-    this._commandInProgress = false;
-    if (this._mutexRelease) {
-      this._mutexRelease();
-      this._mutexRelease = null;
-    }
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      this._commandInProgress = false;
+      release();
+    };
   }
 
   // ═══ Error Handler موحد ═══
@@ -927,7 +936,7 @@ export class OBDBleService {
     }
 
     // ═══ Mutex Lock: انتظر حتى ينتهي الأمر السابق ═══
-    await this.acquireMutex();
+    const releaseMutex = await this.acquireMutex();
 
     try {
       // Enforce minimum delay between commands
@@ -986,7 +995,7 @@ export class OBDBleService {
       });
     } finally {
       // ═══ Mutex Release: افتح القفل للأمر التالي ═══
-      this.releaseMutex();
+      releaseMutex();
     }
   }
 
@@ -3168,10 +3177,6 @@ export class OBDBleService {
     // ═══ تنظيف Mutex ═══
     this._commandInProgress = false;
     this._commandMutex = Promise.resolve();
-    if (this._mutexRelease) {
-      this._mutexRelease();
-      this._mutexRelease = null;
-    }
 
     this.log("✗ تم تنظيف جميع الموارد", "info");
   }

@@ -1852,6 +1852,33 @@ export default function OBDScanner() {
           </div>
         </div>
 
+        {/* ═══ LOG PANEL ═══ */}
+        {/* Rendered right under its toggle, not at the bottom of this ~5600-line
+            page - it used to sit after every tab's content, so opening it from
+            up here looked like nothing happened unless you scrolled all the way
+            down past whichever tab was active. */}
+        {showLogPanel && (
+          <div className="mb-5 bg-gray-900 border border-gray-800 rounded-xl">
+            <div className="flex items-center justify-between p-3 border-b border-gray-800">
+              <h3 className="text-xs font-bold text-gray-400">سجل الاتصال ({mode === "real" ? "ELM327" : "محاكاة"}) - {logs.length} سطر</h3>
+              <div className="flex gap-2">
+                <button onClick={() => setLogs([])} className="text-[10px] text-gray-500 hover:text-white">مسح</button>
+                <button onClick={() => setShowLogPanel(false)} className="text-[10px] text-gray-500 hover:text-white">إخفاء</button>
+              </div>
+            </div>
+            <div ref={logRef} className="p-3 max-h-40 overflow-y-auto font-mono text-[11px] space-y-0.5">
+              {logs.length === 0 ? <p className="text-gray-600">لا توجد سجلات...</p> : logs.map((log, i) => (<div key={i} className={`${log.type === "sent" ? "text-cyan-400" : log.type === "received" ? "text-green-400" : log.type === "error" ? "text-red-400" : "text-yellow-400"}`}><span className="text-gray-600">[{log.time}]</span> {log.message}</div>))}
+            </div>
+          </div>
+        )}
+        {/* Always show minimal log when connected but panel hidden */}
+        {connected && !showLogPanel && logs.length > 0 && (
+          <div className="mb-5 flex items-center gap-2 text-[10px] text-gray-500 cursor-pointer" onClick={() => setShowLogPanel(true)}>
+            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+            <span className="font-mono truncate">{logs[logs.length - 1]?.message}</span>
+          </div>
+        )}
+
         {/* ═══ Vehicle Auto-Detect Card ═══ */}
         {connected && vinInfo && (
           <div className="bg-gradient-to-l from-gray-900 via-gray-800 to-gray-900 border border-cyan-500/20 rounded-xl p-4 mb-4">
@@ -5600,29 +5627,6 @@ export default function OBDScanner() {
           </div>
         )}
 
-        {/* ═══ LOG PANEL ═══ */}
-        {showLogPanel && (
-          <div className="mt-5 bg-gray-900 border border-gray-800 rounded-xl">
-            <div className="flex items-center justify-between p-3 border-b border-gray-800">
-              <h3 className="text-xs font-bold text-gray-400">سجل الاتصال ({mode === "real" ? "ELM327" : "محاكاة"}) - {logs.length} سطر</h3>
-              <div className="flex gap-2">
-                <button onClick={() => setLogs([])} className="text-[10px] text-gray-500 hover:text-white">مسح</button>
-                <button onClick={() => setShowLogPanel(false)} className="text-[10px] text-gray-500 hover:text-white">إخفاء</button>
-              </div>
-            </div>
-            <div ref={logRef} className="p-3 max-h-40 overflow-y-auto font-mono text-[11px] space-y-0.5">
-              {logs.length === 0 ? <p className="text-gray-600">لا توجد سجلات...</p> : logs.map((log, i) => (<div key={i} className={`${log.type === "sent" ? "text-cyan-400" : log.type === "received" ? "text-green-400" : log.type === "error" ? "text-red-400" : "text-yellow-400"}`}><span className="text-gray-600">[{log.time}]</span> {log.message}</div>))}
-            </div>
-          </div>
-        )}
-
-        {/* Always show minimal log when connected but panel hidden */}
-        {connected && !showLogPanel && logs.length > 0 && (
-          <div className="mt-3 flex items-center gap-2 text-[10px] text-gray-500 cursor-pointer" onClick={() => setShowLogPanel(true)}>
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            <span className="font-mono truncate">{logs[logs.length - 1]?.message}</span>
-          </div>
-        )}
       </div>
     </div>
   );

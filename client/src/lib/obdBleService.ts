@@ -1459,31 +1459,45 @@ export class OBDBleService {
 
   /** Parse multi-PID CAN response (e.g., response to "010C0D050411") */
   private parseMultiPIDResponse(response: string, pids: Array<{ pid: string; key: keyof OBDLiveData }>, data: Partial<OBDLiveData>): void {
-    const cleaned = response.replace(/[\s\r\n]/g, "");
-    if (cleaned.includes("NODATA") || cleaned.includes("ERROR")) return;
+    // Strip whitespace and raw ISO-TP frame-sequence markers some adapters
+    // emit when CAN auto-formatting isn't active - e.g. a real captured
+    // response for "010C0D050411" came back as
+    // "00C 0:410C09980D1D 1:05840475112800" (length prefix + "0:"/"1:" frame
+    // index markers) instead of one clean reassembled hex string.
+    const stripped = response.replace(/[\s\r\n]/g, "").replace(/\d+:/g, "");
+    const upper = stripped.toUpperCase();
+    if (upper.includes("NODATA") || upper.includes("ERROR")) return;
 
-    // Multi-PID response format: each PID response on separate line
-    // Or concatenated: 41 0C xxxx 41 0D xx 41 05 xx ...
-    for (const { pid, key } of pids) {
-      const mode = pid.substring(0, 2);
-      const pidCode = pid.substring(2);
-      const modeResponse = (parseInt(mode, 16) + 0x40).toString(16).toUpperCase().padStart(2, "0") + pidCode.toUpperCase();
+    // A real multi-PID reply has exactly ONE "41" mode-response byte,
+    // followed by repeating [PID][data...] tuples - "41" is NOT repeated
+    // before every PID's data (unlike single-PID replies), so each PID's
+    // byte length must be known ahead of time to walk the stream correctly.
+    // Searching for "41"+PID per requested PID (the previous approach) only
+    // ever matches the FIRST pid in the batch, silently leaving every other
+    // field in the batch permanently stuck at its last value - this is why
+    // speed, throttle, load, etc. never updated on CAN vehicles while RPM
+    // (always first in the batch) did.
+    const modeIdx = upper.indexOf("41");
+    if (modeIdx === -1) return;
 
-      const idx = cleaned.toUpperCase().indexOf(modeResponse);
-      if (idx === -1) continue;
+    let cursor = modeIdx + 2;
+    while (cursor + 2 <= upper.length) {
+      const pidCode = upper.substring(cursor, cursor + 2);
+      const match = pids.find((p) => p.pid.substring(2).toUpperCase() === pidCode);
+      const byteLen = match ? (OBD_PIDS[match.pid]?.bytes ?? 1) : 1;
+      const dataStart = cursor + 2;
+      const dataEnd = dataStart + byteLen * 2;
+      if (dataEnd > upper.length) break;
 
-      const dataStart = idx + modeResponse.length;
-      const a = parseInt(cleaned.substring(dataStart, dataStart + 2), 16);
-      if (isNaN(a)) continue;
-      const b = parseInt(cleaned.substring(dataStart + 2, dataStart + 4), 16);
-      const c = parseInt(cleaned.substring(dataStart + 4, dataStart + 6), 16);
-      const d = parseInt(cleaned.substring(dataStart + 6, dataStart + 8), 16);
-
-      const pidDef = OBD_PIDS[pid];
-      if (!pidDef) { (data as any)[key] = a; continue; }
-
-      const value = pidDef.formula(a, isNaN(b) ? undefined : b, isNaN(c) ? undefined : c, isNaN(d) ? undefined : d);
-      (data as any)[key] = value;
+      if (match) {
+        const a = parseInt(upper.substring(dataStart, dataStart + 2), 16);
+        if (!isNaN(a)) {
+          const b = byteLen >= 2 ? parseInt(upper.substring(dataStart + 2, dataStart + 4), 16) : undefined;
+          const pidDef = OBD_PIDS[match.pid];
+          (data as any)[match.key] = pidDef ? pidDef.formula(a, b) : a;
+        }
+      }
+      cursor = dataEnd;
     }
   }
 

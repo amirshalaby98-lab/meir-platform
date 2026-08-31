@@ -11,16 +11,14 @@ import { describe, it, expect } from 'vitest';
 
 describe('Security Configuration - tRPC Router', () => {
   describe('Admin Endpoints Protection', () => {
-    it('should protect admin.getBookings with adminProcedure', () => {
+    it('should protect admin.getMessages with adminProcedure', () => {
       // Verify that admin endpoints are configured with adminProcedure
       // This is a configuration test - the actual middleware is tested at integration level
       const adminEndpoints = [
-        'admin.getBookings',
-        'admin.getMessages', 
-        'admin.updateBookingStatus',
+        'admin.getMessages',
       ];
-      
-      expect(adminEndpoints.length).toBe(3);
+
+      expect(adminEndpoints.length).toBe(1);
       adminEndpoints.forEach(endpoint => {
         expect(endpoint).toMatch(/^admin\./);
       });
@@ -33,16 +31,6 @@ describe('Security Configuration - tRPC Router', () => {
       ];
       
       expect(protectedReviewEndpoints.length).toBe(2);
-    });
-
-    it('should protect technician management with adminProcedure', () => {
-      const adminTechEndpoints = [
-        'technician.create',
-        'technician.updateStatus',
-        'technician.assignToBooking',
-      ];
-      
-      expect(adminTechEndpoints.length).toBe(3);
     });
 
     it('should protect stats dashboard with adminProcedure', () => {
@@ -89,14 +77,6 @@ describe('Security Configuration - tRPC Router', () => {
   });
 
   describe('Protected Endpoints (Require Login)', () => {
-    it('should protect technician bookings with protectedProcedure', () => {
-      const protectedEndpoints = [
-        'technician.getBookings',
-      ];
-      
-      expect(protectedEndpoints.length).toBe(1);
-    });
-
     it('should protect loyalty user endpoints with protectedProcedure', () => {
       const protectedLoyaltyEndpoints = [
         'loyalty.getPoints',
@@ -110,15 +90,6 @@ describe('Security Configuration - tRPC Router', () => {
   });
 
   describe('Public Endpoints (No Auth Required)', () => {
-    it('should keep booking creation public', () => {
-      // Customers should be able to create bookings without logging in
-      const publicEndpoints = [
-        'booking.create',
-      ];
-      
-      expect(publicEndpoints.length).toBe(1);
-    });
-
     it('should keep contact form public', () => {
       const publicEndpoints = [
         'contact.create',
@@ -136,16 +107,6 @@ describe('Security Configuration - tRPC Router', () => {
       expect(publicEndpoints.length).toBe(2);
     });
 
-    it('should keep technician listing public', () => {
-      const publicEndpoints = [
-        'technician.getAll',
-        'technician.getById',
-        'technician.getAvailable',
-      ];
-      
-      expect(publicEndpoints.length).toBe(3);
-    });
-
     it('should keep car brands/models/parts read operations public', () => {
       const publicReadEndpoints = [
         'getCarBrands',
@@ -158,14 +119,6 @@ describe('Security Configuration - tRPC Router', () => {
       ];
       
       expect(publicReadEndpoints.length).toBe(7);
-    });
-
-    it('should keep booking tracking public', () => {
-      const publicEndpoints = [
-        'tracking.getBooking',
-      ];
-      
-      expect(publicEndpoints.length).toBe(1);
     });
 
     it('should keep loyalty rewards list public', () => {
@@ -231,74 +184,6 @@ describe('Security Configuration - REST API Routes', () => {
       
       invalidRanges.forEach(range => {
         expect(range.min < 1 || range.max > 5 || range.min > range.max).toBe(true);
-      });
-    });
-  });
-
-  describe('Badges API', () => {
-    it('should require authentication for badge viewing', () => {
-      const protectedEndpoints = [
-        'GET /api/badges/:technicianId',
-        'GET /api/badges/:technicianId/rewards',
-        'GET /api/badges/:technicianId/leaderboard',
-      ];
-      
-      expect(protectedEndpoints.length).toBe(3);
-    });
-
-    it('should require admin for badge management', () => {
-      const adminEndpoints = [
-        'POST /api/badges/:technicianId/check-and-award',
-        'POST /api/badges/leaderboard/update',
-      ];
-      
-      expect(adminEndpoints.length).toBe(2);
-    });
-
-    it('should keep leaderboard top public', () => {
-      const publicEndpoints = [
-        'GET /api/badges/leaderboard/top',
-      ];
-      
-      expect(publicEndpoints.length).toBe(1);
-    });
-
-    it('should validate technician ID parameter', () => {
-      const validIds = [1, 2, 100, 999];
-      const invalidIds = [NaN, -1, 0];
-      
-      validIds.forEach(id => {
-        expect(!isNaN(id) && id > 0).toBe(true);
-      });
-      
-      invalidIds.forEach(id => {
-        expect(isNaN(id) || id <= 0).toBe(true);
-      });
-    });
-
-    it('should validate period parameter', () => {
-      const validPeriods = ['weekly', 'monthly', 'yearly', 'all_time'];
-      const invalidPeriods = ['daily', 'hourly', '', 'invalid'];
-      
-      validPeriods.forEach(period => {
-        expect(validPeriods.includes(period)).toBe(true);
-      });
-      
-      invalidPeriods.forEach(period => {
-        expect(validPeriods.includes(period)).toBe(false);
-      });
-    });
-
-    it('should validate limit parameter', () => {
-      const validLimits = [1, 10, 50, 100];
-      const invalidLimits = [0, -1, 101, 1000];
-      
-      validLimits.forEach(limit => {
-        expect(limit >= 1 && limit <= 100).toBe(true);
-      });
-      
-      invalidLimits.forEach(limit => {
-        expect(limit < 1 || limit > 100).toBe(true);
       });
     });
   });

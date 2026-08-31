@@ -36,7 +36,6 @@ export default function Footer() {
               <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.periodicMaintenance")}</a></li>
               <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.faultDiagnosis")}</a></li>
               <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.emergencyService")}</a></li>
-              <li><a href="#" className="hover:text-yellow-400 transition-colors">{t("footer.spareParts")}</a></li>
             </ul>
           </div>
 

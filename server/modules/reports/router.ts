@@ -1,7 +1,5 @@
 import { z } from "zod";
-import { publicProcedure, adminProcedure, router } from "../../_core/trpc";
-import { getAllBookings, getBookingsByDateRange } from "../booking";
-import { getAllTechnicians } from "../technicians";
+import { publicProcedure, router } from "../../_core/trpc";
 import { getPriceCalculationsByDateRange } from "../pricing";
 
 export const reportsRouter = router({
@@ -66,27 +64,6 @@ export const reportsRouter = router({
         values: Object.values(revenueByDate),
       };
     }),
-
-  // الحصول على الحجوزات حسب الحالة
-  getBookingsByStatus: publicProcedure.query(async () => {
-    const bookings = await getAllBookings();
-    
-    const statusCount = {
-      pending: 0,
-      confirmed: 0,
-      completed: 0,
-      cancelled: 0,
-    };
-
-    bookings.forEach((booking) => {
-      if (booking.status === 'pending') statusCount.pending++;
-      else if (booking.status === 'confirmed') statusCount.confirmed++;
-      else if (booking.status === 'completed') statusCount.completed++;
-      else if (booking.status === 'cancelled') statusCount.cancelled++;
-    });
-
-    return statusCount;
-  }),
 
   // الحصول على القطع الأكثر طلباً
   getTopParts: publicProcedure
@@ -223,80 +200,18 @@ export const reportsRouter = router({
 
       // جلب البيانات للفترة الحالية
       const currentCalculations = await getPriceCalculationsByDateRange(startDate, now);
-      const currentBookings = await getBookingsByDateRange(startDate, now);
-      
+
       // جلب البيانات للفترة السابقة
       const previousCalculations = await getPriceCalculationsByDateRange(previousStartDate, startDate);
-      const previousBookings = await getBookingsByDateRange(previousStartDate, startDate);
 
       // حساب الإحصائيات
       const totalRevenue = currentCalculations.reduce((sum: number, calc: any) => sum + calc.totalCost, 0);
       const previousRevenue = previousCalculations.reduce((sum: number, calc: any) => sum + calc.totalCost, 0);
       const revenueGrowth = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
 
-      const totalBookings = currentBookings.length;
-      const previousTotalBookings = previousBookings.length;
-      const bookingsGrowth = previousTotalBookings > 0 ? ((totalBookings - previousTotalBookings) / previousTotalBookings) * 100 : 0;
-
-      const avgBookingValue = totalBookings > 0 ? totalRevenue / totalBookings : 0;
-
-      const completedBookings = currentBookings.filter((b: any) => b.status === 'completed').length;
-      const completionRate = totalBookings > 0 ? (completedBookings / totalBookings) * 100 : 0;
-
       return {
         totalRevenue,
         revenueGrowth,
-        totalBookings,
-        bookingsGrowth,
-        avgBookingValue,
-        completionRate,
       };
     }),
-
-  // أفضل الفنيين أداءً
-  getTopTechnicians: adminProcedure
-    .input(z.object({ limit: z.number().default(10) }))
-    .query(async ({ input }) => {
-      const technicians = await getAllTechnicians();
-      const allBookings = await getAllBookings();
-
-      const techStats = technicians.map((tech) => {
-        const techBookings = allBookings.filter((b: any) => b.technicianId === tech.id);
-        const completed = techBookings.filter((b: any) => b.status === 'completed').length;
-        const total = techBookings.length;
-        const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-        return {
-          id: tech.id,
-          name: tech.name,
-          specialty: tech.specialization,
-          rating: tech.rating || 0,
-          completedJobs: completed,
-          totalJobs: total,
-          successRate,
-        };
-      });
-
-      return techStats
-        .sort((a, b) => b.completedJobs - a.completedJobs)
-        .slice(0, input.limit);
-    }),
-
-  // تقرير الحجوزات الملغاة
-  getCancelledBookings: adminProcedure.query(async () => {
-    const allBookings = await getAllBookings();
-    const cancelled = allBookings.filter((b: any) => b.status === 'cancelled');
-
-    return cancelled.map((b: any) => ({
-      id: b.id,
-      customerName: b.name,
-      phone: b.phone,
-      date: b.date,
-      time: b.time,
-      carBrand: b.carBrand,
-      carModel: b.carModel,
-      reason: b.notes || 'لم يحدد سبب',
-      createdAt: b.createdAt,
-    }));
-  }),
 });

@@ -51,9 +51,7 @@ export default function VendorApprovals() {
   const rejectMutation = trpc.vendors.rejectVendor.useMutation();
 
   const vendorTypeLabels = {
-    parts_shop: "متجر قطع غيار",
-    technician: "فني صيانة",
-    junkyard: "تشليح معتمد",
+    trainer: "مدرب",
   };
 
   const statusLabels = {

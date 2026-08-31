@@ -33,40 +33,6 @@ const mockAdminUser = {
   lastSignedIn: new Date(),
 };
 
-describe("Booking Router", () => {
-  it("should create a booking successfully", async () => {
-    const caller = appRouter.createCaller(createMockContext());
-
-    const result = await caller.booking.create({
-      name: "محمد أحمد",
-      phone: "0501234567",
-      email: "test@example.com",
-      service: "🔋 بطارية",
-      location: "مكة المكرمة",
-      date: "2025-01-15",
-      time: "10:00",
-      notes: "اختبار",
-    });
-
-    expect(result.success).toBe(true);
-  });
-
-  it("should reject booking with invalid phone", async () => {
-    const caller = appRouter.createCaller(createMockContext());
-
-    await expect(
-      caller.booking.create({
-        name: "محمد أحمد",
-        phone: "123", // Invalid phone
-        service: "🔋 بطارية",
-        location: "مكة المكرمة",
-        date: "2025-01-15",
-        time: "10:00",
-      })
-    ).rejects.toThrow();
-  });
-});
-
 describe("Contact Router", () => {
   it("should create a contact message successfully", async () => {
     const caller = appRouter.createCaller(createMockContext());
@@ -137,13 +103,6 @@ describe("Review Router", () => {
 });
 
 describe("Admin Router", () => {
-  it("should get all bookings", async () => {
-    const caller = appRouter.createCaller(createMockContext(mockAdminUser));
-
-    const bookings = await caller.admin.getBookings();
-    expect(Array.isArray(bookings)).toBe(true);
-  });
-
   it("should get all messages", async () => {
     const caller = appRouter.createCaller(createMockContext(mockAdminUser));
 
@@ -151,69 +110,9 @@ describe("Admin Router", () => {
     expect(Array.isArray(messages)).toBe(true);
   });
 
-  it("should update booking status", async () => {
-    const caller = appRouter.createCaller(createMockContext(mockAdminUser));
-
-    // First create a booking (public endpoint)
-    const publicCaller = appRouter.createCaller(createMockContext());
-    await publicCaller.booking.create({
-      name: "محمد أحمد",
-      phone: "0501234567",
-      service: "🔋 بطارية",
-      location: "مكة المكرمة",
-      date: "2025-01-15",
-      time: "10:00",
-    });
-
-    // Get the booking ID
-    const bookings = await caller.admin.getBookings();
-    const lastBooking = bookings[bookings.length - 1];
-
-    // Update status
-    const result = await caller.admin.updateBookingStatus({
-      id: lastBooking.id,
-      status: "confirmed",
-    });
-
-    expect(result.success).toBe(true);
-  });
-
   it("should reject non-admin users", async () => {
     const caller = appRouter.createCaller(createMockContext(null));
 
-    await expect(caller.admin.getBookings()).rejects.toThrow();
-  });
-});
-
-describe("Tracking Router", () => {
-  it("should get booking by ID", async () => {
-    // Create a booking first
-    const publicCaller = appRouter.createCaller(createMockContext());
-    await publicCaller.booking.create({
-      name: "محمد أحمد",
-      phone: "0501234567",
-      service: "🔋 بطارية",
-      location: "مكة المكرمة",
-      date: "2025-01-15",
-      time: "10:00",
-    });
-
-    // Get the booking ID via admin
-    const adminCaller = appRouter.createCaller(createMockContext(mockAdminUser));
-    const bookings = await adminCaller.admin.getBookings();
-    const lastBooking = bookings[bookings.length - 1];
-
-    // Track the booking
-    const booking = await publicCaller.tracking.getBooking({ id: lastBooking.id });
-
-    expect(booking).toBeDefined();
-    expect(booking?.name).toBe("محمد أحمد");
-  });
-
-  it("should return null for non-existent booking", async () => {
-    const caller = appRouter.createCaller(createMockContext());
-
-    const booking = await caller.tracking.getBooking({ id: 999999 });
-    expect(booking).toBeNull();
+    await expect(caller.admin.getMessages()).rejects.toThrow();
   });
 });

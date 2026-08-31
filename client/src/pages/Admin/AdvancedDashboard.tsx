@@ -4,22 +4,13 @@ import { trpc } from "../../lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import {
   Users,
-  Calendar,
-  TrendingUp,
-  Wrench,
   Star,
   MessageSquare,
   AlertTriangle,
   Activity,
-  BarChart3,
-  Clock,
   CheckCircle,
-  XCircle,
-  MapPin,
-  Trophy,
   Bell,
   ArrowUpRight,
-  ArrowDownRight,
   RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,7 +28,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
-import { Line, Bar, Doughnut } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -53,28 +44,19 @@ ChartJS.register(
 );
 
 function AdvancedDashboardContent() {
-  const [bookingsPeriod, setBookingsPeriod] = useState<"7days" | "30days" | "90days">("7days");
   const [usersPeriod, setUsersPeriod] = useState<"7days" | "30days" | "90days">("30days");
 
   // Fetch data
-  const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } =
+  const { data: summary, isLoading: summaryLoading } =
     trpc.adminDashboard.getPlatformSummary.useQuery();
   const { data: recentActivity } =
     trpc.adminDashboard.getRecentUserActivity.useQuery({ limit: 15 });
-  const { data: bookingsTrend } =
-    trpc.adminDashboard.getBookingsTrend.useQuery({ period: bookingsPeriod });
-  const { data: techPerformance } =
-    trpc.adminDashboard.getTechnicianPerformance.useQuery();
   const { data: contentStats } =
     trpc.adminDashboard.getContentStats.useQuery();
   const { data: userGrowth } =
     trpc.adminDashboard.getUserGrowth.useQuery({ period: usersPeriod });
   const { data: alerts } =
     trpc.adminDashboard.getAlerts.useQuery();
-  const { data: topServices } =
-    trpc.adminDashboard.getTopServices.useQuery();
-  const { data: topLocations } =
-    trpc.adminDashboard.getTopLocations.useQuery();
 
   // Chart options
   const chartOptions = {
@@ -100,40 +82,6 @@ function AdvancedDashboardContent() {
     },
   };
 
-  // Bookings trend chart data
-  const bookingsChartData = {
-    labels: bookingsTrend?.map((d: any) => {
-      const date = new Date(d.date);
-      return `${date.getDate()}/${date.getMonth() + 1}`;
-    }) || [],
-    datasets: [
-      {
-        label: "إجمالي الحجوزات",
-        data: bookingsTrend?.map((d: any) => d.count) || [],
-        borderColor: "rgb(250, 204, 21)",
-        backgroundColor: "rgba(250, 204, 21, 0.1)",
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: "مكتملة",
-        data: bookingsTrend?.map((d: any) => d.completed) || [],
-        borderColor: "rgb(34, 197, 94)",
-        backgroundColor: "rgba(34, 197, 94, 0.1)",
-        fill: false,
-        tension: 0.4,
-      },
-      {
-        label: "ملغاة",
-        data: bookingsTrend?.map((d: any) => d.cancelled) || [],
-        borderColor: "rgb(239, 68, 68)",
-        backgroundColor: "rgba(239, 68, 68, 0.1)",
-        fill: false,
-        tension: 0.4,
-      },
-    ],
-  };
-
   // User growth chart data
   const userGrowthChartData = {
     labels: userGrowth?.map((d: any) => {
@@ -147,28 +95,6 @@ function AdvancedDashboardContent() {
         backgroundColor: "rgba(99, 102, 241, 0.8)",
         borderColor: "rgb(99, 102, 241)",
         borderWidth: 2,
-      },
-    ],
-  };
-
-  // Top services chart data
-  const servicesChartData = {
-    labels: topServices?.map((s: any) => s.service) || [],
-    datasets: [
-      {
-        data: topServices?.map((s: any) => s.count) || [],
-        backgroundColor: [
-          "rgba(250, 204, 21, 0.8)",
-          "rgba(99, 102, 241, 0.8)",
-          "rgba(34, 197, 94, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(168, 85, 247, 0.8)",
-          "rgba(14, 165, 233, 0.8)",
-          "rgba(249, 115, 22, 0.8)",
-          "rgba(236, 72, 153, 0.8)",
-        ],
-        borderWidth: 2,
-        borderColor: "#fff",
       },
     ],
   };
@@ -240,12 +166,8 @@ function AdvancedDashboardContent() {
               يوجد {alerts.alertsCount} تنبيه يتطلب انتباهك
             </p>
             <p className="text-sm text-red-600">
-              {alerts.stalePendingBookings.length > 0 &&
-                `${alerts.stalePendingBookings.length} حجز معلق لأكثر من 24 ساعة • `}
               {alerts.negativeReviews.length > 0 &&
-                `${alerts.negativeReviews.length} تقييم سلبي جديد • `}
-              {alerts.offlineTechnicians.length > 0 &&
-                `${alerts.offlineTechnicians.length} فني غير متصل`}
+                `${alerts.negativeReviews.length} تقييم سلبي جديد`}
             </p>
           </div>
           <Button variant="outline" size="sm" className="border-red-300 text-red-700 hover:bg-red-100">
@@ -255,7 +177,7 @@ function AdvancedDashboardContent() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* المستخدمين */}
         <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
           <CardContent className="p-5">
@@ -274,52 +196,6 @@ function AdvancedDashboardContent() {
               </div>
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
                 <Users className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* الحجوزات */}
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">الحجوزات</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {summary?.bookings.total || 0}
-                </p>
-                <div className="flex items-center gap-1 mt-2">
-                  <Calendar className="w-4 h-4 text-yellow-500" />
-                  <span className="text-sm text-yellow-600 font-medium">
-                    {summary?.bookings.today || 0} اليوم
-                  </span>
-                </div>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* معدل الإنجاز */}
-        <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">معدل الإنجاز</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">
-                  {summary?.bookings.completionRate || 0}%
-                </p>
-                <div className="flex items-center gap-1 mt-2">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-green-600 font-medium">
-                    {summary?.bookings.completed || 0} مكتمل
-                  </span>
-                </div>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </CardContent>
@@ -351,23 +227,7 @@ function AdvancedDashboardContent() {
       </div>
 
       {/* Secondary Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-1">
-            <Clock className="w-4 h-4 text-orange-500" />
-            <span className="text-xs text-gray-500">حجوزات معلقة</span>
-          </div>
-          <p className="text-2xl font-bold text-orange-600">{summary?.bookings.pending || 0}</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-1">
-            <Wrench className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-gray-500">فنيين متاحين</span>
-          </div>
-          <p className="text-2xl font-bold text-blue-600">
-            {summary?.technicians.available || 0}/{summary?.technicians.total || 0}
-          </p>
-        </div>
+      <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 mb-1">
             <MessageSquare className="w-4 h-4 text-purple-500" />
@@ -385,37 +245,7 @@ function AdvancedDashboardContent() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Bookings Trend */}
-        <Card className="border-0 shadow-md">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">اتجاه الحجوزات</CardTitle>
-                <CardDescription>تتبع الحجوزات خلال الفترة المحددة</CardDescription>
-              </div>
-              <div className="flex gap-1">
-                {(["7days", "30days", "90days"] as const).map((p) => (
-                  <Button
-                    key={p}
-                    variant={bookingsPeriod === p ? "default" : "ghost"}
-                    size="sm"
-                    className={bookingsPeriod === p ? "bg-yellow-500 hover:bg-yellow-600 text-white" : ""}
-                    onClick={() => setBookingsPeriod(p)}
-                  >
-                    {p === "7days" ? "7 أيام" : p === "30days" ? "30 يوم" : "90 يوم"}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[280px]">
-              <Line data={bookingsChartData} options={chartOptions} />
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6">
         {/* User Growth */}
         <Card className="border-0 shadow-md">
           <CardHeader className="pb-2">
@@ -448,33 +278,7 @@ function AdvancedDashboardContent() {
       </div>
 
       {/* Services & Ratings Row */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Top Services */}
-        <Card className="border-0 shadow-md">
-          <CardHeader>
-            <CardTitle className="text-lg">الخدمات الأكثر طلباً</CardTitle>
-            <CardDescription>توزيع الحجوزات حسب نوع الخدمة</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[250px] flex items-center justify-center">
-              <Doughnut
-                data={servicesChartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: "right",
-                      rtl: true,
-                      labels: { font: { family: "Cairo, sans-serif", size: 11 } },
-                    },
-                  },
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6">
         {/* Rating Distribution */}
         <Card className="border-0 shadow-md">
           <CardHeader>
@@ -499,69 +303,8 @@ function AdvancedDashboardContent() {
         </Card>
       </div>
 
-      {/* Technician Performance & Recent Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Technician Performance */}
-        <Card className="border-0 shadow-md">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">أداء الفنيين</CardTitle>
-                <CardDescription>ترتيب حسب عدد المهام المنجزة</CardDescription>
-              </div>
-              <Trophy className="w-5 h-5 text-yellow-500" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-[350px] overflow-y-auto">
-              {techPerformance?.slice(0, 8).map((tech: any, index: number) => (
-                <div
-                  key={tech.id}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                      index === 0
-                        ? "bg-yellow-100 text-yellow-700"
-                        : index === 1
-                        ? "bg-gray-200 text-gray-700"
-                        : index === 2
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{tech.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {tech.specialization || "عام"} • {tech.location}
-                    </p>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-bold text-gray-900">
-                      {tech.completedBookings}/{tech.assignedBookings}
-                    </p>
-                    <p className="text-xs text-gray-500">{tech.completionRate}% إنجاز</p>
-                  </div>
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      tech.status === "available"
-                        ? "bg-green-500"
-                        : tech.status === "busy"
-                        ? "bg-yellow-500"
-                        : "bg-gray-400"
-                    }`}
-                  />
-                </div>
-              ))}
-              {(!techPerformance || techPerformance.length === 0) && (
-                <p className="text-center text-gray-500 py-8">لا يوجد فنيين بعد</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
+      {/* Recent Activity */}
+      <div className="grid gap-6">
         {/* Recent User Activity */}
         <Card className="border-0 shadow-md">
           <CardHeader>
@@ -710,35 +453,6 @@ function AdvancedDashboardContent() {
         </Card>
       </div>
 
-      {/* Top Locations */}
-      <Card className="border-0 shadow-md">
-        <CardHeader>
-          <CardTitle className="text-lg">المواقع الأكثر طلباً</CardTitle>
-          <CardDescription>توزيع الحجوزات حسب الموقع الجغرافي</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {topLocations?.map((loc: any, index: number) => (
-              <div
-                key={loc.location}
-                className="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
-              >
-                <MapPin className="w-5 h-5 text-red-500 shrink-0" />
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{loc.location}</p>
-                </div>
-                <span className="text-sm font-bold text-gray-700">{loc.count}</span>
-              </div>
-            ))}
-            {(!topLocations || topLocations.length === 0) && (
-              <p className="text-gray-500 col-span-full text-center py-4">
-                لا يوجد بيانات بعد
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Alerts Detail Section */}
       {alerts && alerts.alertsCount > 0 && (
         <Card className="border-0 shadow-md border-t-4 border-t-red-500">
@@ -750,31 +464,6 @@ function AdvancedDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Stale Pending Bookings */}
-              {alerts.stalePendingBookings.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-sm text-gray-700 mb-2">
-                    حجوزات معلقة لأكثر من 24 ساعة ({alerts.stalePendingBookings.length})
-                  </h4>
-                  <div className="space-y-2">
-                    {alerts.stalePendingBookings.slice(0, 5).map((booking: any) => (
-                      <div
-                        key={booking.id}
-                        className="flex items-center gap-3 p-2 rounded bg-red-50"
-                      >
-                        <Clock className="w-4 h-4 text-red-500" />
-                        <span className="text-sm flex-1">
-                          {booking.name} - {booking.service}
-                        </span>
-                        <span className="text-xs text-red-600">
-                          {getTimeSince(booking.createdAt)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Negative Reviews */}
               {alerts.negativeReviews.length > 0 && (
                 <div>
@@ -793,31 +482,6 @@ function AdvancedDashboardContent() {
                         </span>
                         <span className="text-xs text-orange-600">
                           {getTimeSince(review.createdAt)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Offline Technicians */}
-              {alerts.offlineTechnicians.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-sm text-gray-700 mb-2">
-                    فنيين غير متصلين ({alerts.offlineTechnicians.length})
-                  </h4>
-                  <div className="space-y-2">
-                    {alerts.offlineTechnicians.map((tech: any) => (
-                      <div
-                        key={tech.id}
-                        className="flex items-center gap-3 p-2 rounded bg-gray-100"
-                      >
-                        <XCircle className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm flex-1">
-                          {tech.name} - {tech.location}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {tech.specialization || "عام"}
                         </span>
                       </div>
                     ))}

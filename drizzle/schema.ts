@@ -44,37 +44,6 @@ export const passwordResetCodes = mysqlTable("passwordResetCodes", {
 });
 
 /**
- * Bookings table to store service booking requests
- */
-export const bookings = mysqlTable("bookings", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  email: varchar("email", { length: 320 }),
-  service: varchar("service", { length: 100 }).notNull(),
-  location: varchar("location", { length: 100 }).notNull(),
-  date: varchar("date", { length: 20 }).notNull(),
-  time: varchar("time", { length: 20 }).notNull(),
-  notes: text("notes"),
-  // Vehicle information
-  carType: varchar("carType", { length: 50 }), // صالون، دفع رباعي، شاحنة، إلخ
-  carBrand: varchar("carBrand", { length: 50 }), // تويوتا، هيونداي، إلخ
-  carModel: varchar("carModel", { length: 50 }), // كامري، سوناتا، إلخ
-  carYear: varchar("carYear", { length: 4 }), // 2020, 2021, إلخ
-  status: mysqlEnum("status", ["pending", "confirmed", "completed", "cancelled"])
-    .default("pending")
-    .notNull(),
-  technicianId: int("technicianId"),
-  technicianName: varchar("technicianName", { length: 255 }),
-  reviewSent: int("reviewSent").default(0).notNull(), // 0 = not sent, 1 = sent
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Booking = typeof bookings.$inferSelect;
-export type InsertBooking = typeof bookings.$inferInsert;
-
-/**
  * Contact messages table to store contact form submissions
  */
 export const contactMessages = mysqlTable("contactMessages", {
@@ -92,34 +61,6 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 export type InsertContactMessage = typeof contactMessages.$inferInsert;
 
 // Old reviews table removed - using the new comprehensive reviews table below
-
-/**
- * Technicians table to store technician information
- */
-export const technicians = mysqlTable("technicians", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId"), // ربط بجدول users
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  email: varchar("email", { length: 320 }),
-  nationalId: varchar("nationalId", { length: 20 }), // رقم الهوية
-  specialization: varchar("specialization", { length: 255 }), // e.g., "بطارية، دينمو"
-  yearsExperience: int("yearsExperience").default(0), // سنوات الخبرة
-  location: varchar("location", { length: 100 }).notNull(), // مكة أو جدة
-  status: mysqlEnum("status", ["available", "busy", "offline"])
-    .default("available")
-    .notNull(),
-  approvalStatus: mysqlEnum("approvalStatus", ["pending", "approved", "rejected"])
-    .default("pending")
-    .notNull(), // حالة الموافقة
-  rating: int("rating").default(5).notNull(), // 1-5
-  completedJobs: int("completedJobs").default(0).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Technician = typeof technicians.$inferSelect;
-export type InsertTechnician = typeof technicians.$inferInsert;
 
 /**
  * Loyalty Points table to store customer points
@@ -288,68 +229,6 @@ export const instructors = mysqlTable("instructors", {
 
 export type Instructor = typeof instructors.$inferSelect;
 export type InsertInstructor = typeof instructors.$inferInsert;
-
-/**
- * Tow Trucks table - السطحات المعتمدة
- */
-export const towTrucks = mysqlTable("tow_trucks", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  city: varchar("city", { length: 100 }).notNull(),
-  area: varchar("area", { length: 100 }).notNull(),
-  rating: decimal("rating", { precision: 2, scale: 1 }).default("0.0"),
-  reviews: int("reviews").default(0),
-  services: text("services"), // JSON array of services
-  price: varchar("price", { length: 100 }),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TowTruck = typeof towTrucks.$inferSelect;
-export type InsertTowTruck = typeof towTrucks.$inferInsert;
-
-/**
- * Parts Shops table - محلات القطع الغيار المعتمدة
- */
-export const partsShops = mysqlTable("parts_shops", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  city: varchar("city", { length: 100 }).notNull(),
-  area: varchar("area", { length: 100 }).notNull(),
-  rating: decimal("rating", { precision: 2, scale: 1 }).default("0.0"),
-  reviews: int("reviews").default(0),
-  specialties: text("specialties"), // JSON array of specialties
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type PartsShop = typeof partsShops.$inferSelect;
-export type InsertPartsShop = typeof partsShops.$inferInsert;
-
-/**
- * Junkyards table - التشاليح المعتمدة
- */
-export const junkyards = mysqlTable("junkyards", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  city: varchar("city", { length: 100 }).notNull(),
-  area: varchar("area", { length: 100 }).notNull(),
-  rating: decimal("rating", { precision: 2, scale: 1 }).default("0.0"),
-  reviews: int("reviews").default(0),
-  specialties: text("specialties"), // JSON array of specialties
-  hasWarranty: boolean("hasWarranty").default(false),
-  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Junkyard = typeof junkyards.$inferSelect;
-export type InsertJunkyard = typeof junkyards.$inferInsert;
 
 /**
  * Labor Time System - نظام التسعير
@@ -1008,156 +887,6 @@ export type SavedFilter = typeof savedFilters.$inferSelect;
 export type InsertSavedFilter = typeof savedFilters.$inferInsert;
 
 
-/**
- * Badges table - جدول الشارات والمكافآت
- */
-export const badges = mysqlTable("badges", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(), // اسم الشارة (مثل: نجم الخدمة)
-  description: text("description"), // وصف الشارة
-  icon: varchar("icon", { length: 100 }).notNull(), // أيقونة الشارة (emoji أو رابط)
-  color: varchar("color", { length: 20 }).default("yellow").notNull(), // لون الشارة
-  
-  // Badge criteria
-  type: mysqlEnum("type", [
-    "rating", // بناءً على التقييم
-    "jobs", // بناءً على عدد الوظائف
-    "reviews", // بناءً على عدد التقييمات
-    "consistency", // الاستقرار
-    "growth", // النمو
-    "special", // شارات خاصة
-  ]).notNull(),
-  
-  // Thresholds for earning the badge
-  minRating: decimal("minRating", { precision: 3, scale: 1 }), // الحد الأدنى للتقييم
-  minJobs: int("minJobs"), // الحد الأدنى للوظائف
-  minReviews: int("minReviews"), // الحد الأدنى للتقييمات
-  minConsistencyDays: int("minConsistencyDays"), // عدد الأيام للاستقرار
-  minGrowthPercentage: decimal("minGrowthPercentage", { precision: 5, scale: 2 }), // نسبة النمو المطلوبة
-  
-  // Metadata
-  isActive: boolean("isActive").default(true).notNull(),
-  rarity: mysqlEnum("rarity", ["common", "uncommon", "rare", "epic", "legendary"]).default("common").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Badge = typeof badges.$inferSelect;
-export type InsertBadge = typeof badges.$inferInsert;
-
-/**
- * Technician Badges table - جدول شارات الفنيين
- */
-export const technicianBadges = mysqlTable("technicianBadges", {
-  id: int("id").autoincrement().primaryKey(),
-  technicianId: int("technicianId").notNull(),
-  badgeId: int("badgeId").notNull(),
-  
-  // Badge earning info
-  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
-  expiresAt: timestamp("expiresAt"), // تاريخ انتهاء الشارة (اختياري)
-  
-  // Display settings
-  displayOrder: int("displayOrder").default(0).notNull(), // ترتيب العرض
-  isPinned: boolean("isPinned").default(false).notNull(), // هل الشارة مثبتة
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TechnicianBadge = typeof technicianBadges.$inferSelect;
-export type InsertTechnicianBadge = typeof technicianBadges.$inferInsert;
-
-/**
- * Rewards table - جدول المكافآت
- */
-export const rewards = mysqlTable("rewards", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(), // اسم المكافأة
-  description: text("description"), // وصف المكافأة
-  icon: varchar("icon", { length: 100 }).notNull(), // أيقونة المكافأة
-  
-  // Reward type
-  type: mysqlEnum("type", [
-    "discount", // خصم
-    "bonus", // مكافأة مالية
-    "feature", // ميزة خاصة
-    "recognition", // اعتراف
-    "priority", // أولوية
-  ]).notNull(),
-  
-  // Reward value
-  value: decimal("value", { precision: 10, scale: 2 }), // قيمة المكافأة
-  percentage: decimal("percentage", { precision: 5, scale: 2 }), // نسبة الخصم/المكافأة
-  
-  // Eligibility
-  minRating: decimal("minRating", { precision: 3, scale: 1 }), // الحد الأدنى للتقييم
-  minJobs: int("minJobs"), // الحد الأدنى للوظائف
-  maxRewardCount: int("maxRewardCount"), // الحد الأقصى لعدد المكافآت
-  
-  // Metadata
-  isActive: boolean("isActive").default(true).notNull(),
-  validFrom: timestamp("validFrom").defaultNow().notNull(),
-  validUntil: timestamp("validUntil"), // تاريخ انتهاء الصلاحية
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type Reward = typeof rewards.$inferSelect;
-export type InsertReward = typeof rewards.$inferInsert;
-
-/**
- * Technician Rewards table - جدول مكافآت الفنيين
- */
-export const technicianRewards = mysqlTable("technicianRewards", {
-  id: int("id").autoincrement().primaryKey(),
-  technicianId: int("technicianId").notNull(),
-  rewardId: int("rewardId").notNull(),
-  
-  // Reward earning info
-  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
-  expiresAt: timestamp("expiresAt"), // تاريخ انتهاء المكافأة
-  
-  // Status
-  status: mysqlEnum("status", ["pending", "active", "used", "expired"]).default("pending").notNull(),
-  usedAt: timestamp("usedAt"), // تاريخ استخدام المكافأة
-  
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-
-export type TechnicianReward = typeof technicianRewards.$inferSelect;
-export type InsertTechnicianReward = typeof technicianRewards.$inferInsert;
-
-/**
- * Leaderboard table - جدول لوحة الصدارة
- */
-export const leaderboard = mysqlTable("leaderboard", {
-  id: int("id").autoincrement().primaryKey(),
-  technicianId: int("technicianId").notNull(),
-  
-  // Scores
-  ratingScore: decimal("ratingScore", { precision: 5, scale: 2 }).default("0").notNull(),
-  jobsScore: int("jobsScore").default(0).notNull(),
-  reviewsScore: int("reviewsScore").default(0).notNull(),
-  totalScore: decimal("totalScore", { precision: 8, scale: 2 }).default("0").notNull(),
-  
-  // Ranking
-  rank: int("rank").default(0).notNull(),
-  previousRank: int("previousRank"), // الترتيب السابق
-  
-  // Period
-  period: mysqlEnum("period", ["weekly", "monthly", "yearly", "all_time"]).default("monthly").notNull(),
-  
-  // Metadata
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
-
-export type LeaderboardEntry = typeof leaderboard.$inferSelect;
-export type InsertLeaderboardEntry = typeof leaderboard.$inferInsert;
-
 
 // ═══════════════════════════════════════════════════════════════
 // OBD2 Diagnostics & AI Module Tables
@@ -1241,33 +970,6 @@ export type AiDiagnosticReport = typeof aiDiagnosticReports.$inferSelect;
 export type InsertAiDiagnosticReport = typeof aiDiagnosticReports.$inferInsert;
 
 /**
- * Workshops - الورش المعتمدة
- */
-export const workshops = mysqlTable("workshops", {
-  id: int("id").autoincrement().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  ownerName: varchar("ownerName", { length: 255 }),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  email: varchar("email", { length: 320 }),
-  city: varchar("city", { length: 100 }).notNull(),
-  area: varchar("area", { length: 100 }),
-  address: text("address"),
-  description: text("description"),
-  specialties: json("specialties"), // ["ميكانيكا", "كهرباء", "بودي"]
-  workingHours: varchar("workingHours", { length: 100 }),
-  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
-  totalReviews: int("totalReviews").default(0),
-  completedJobs: int("completedJobs").default(0),
-  commercialLicense: varchar("commercialLicense", { length: 100 }),
-  status: mysqlEnum("status", ["pending", "approved", "rejected", "suspended"]).default("pending"),
-  approvedAt: timestamp("approvedAt"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type Workshop = typeof workshops.$inferSelect;
-export type InsertWorkshop = typeof workshops.$inferInsert;
-
-/**
  * Consultations - الاستشارات الهندسية
  */
 export const consultations = mysqlTable("consultations", {
@@ -1293,46 +995,6 @@ export const consultations = mysqlTable("consultations", {
 });
 export type Consultation = typeof consultations.$inferSelect;
 export type InsertConsultation = typeof consultations.$inferInsert;
-
-/**
- * Fleet Companies - شركات الأساطيل
- */
-export const fleetCompanies = mysqlTable("fleetCompanies", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId"), // المستخدم المسؤول
-  companyName: varchar("companyName", { length: 255 }).notNull(),
-  contactPerson: varchar("contactPerson", { length: 255 }),
-  phone: varchar("phone", { length: 20 }).notNull(),
-  email: varchar("email", { length: 320 }),
-  vehicleCount: int("vehicleCount").default(0),
-  contractType: mysqlEnum("contractType", ["monthly", "yearly", "per_service"]).default("monthly"),
-  status: mysqlEnum("status", ["active", "inactive", "suspended"]).default("active"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type FleetCompany = typeof fleetCompanies.$inferSelect;
-export type InsertFleetCompany = typeof fleetCompanies.$inferInsert;
-
-/**
- * Fleet Vehicles - مركبات الأساطيل
- */
-export const fleetVehicles = mysqlTable("fleetVehicles", {
-  id: int("id").autoincrement().primaryKey(),
-  companyId: int("companyId").notNull(),
-  vin: varchar("vin", { length: 20 }),
-  plateNumber: varchar("plateNumber", { length: 20 }),
-  make: varchar("make", { length: 100 }),
-  model: varchar("model", { length: 100 }),
-  year: varchar("year", { length: 10 }),
-  mileage: int("mileage").default(0),
-  lastServiceDate: timestamp("lastServiceDate"),
-  nextServiceDate: timestamp("nextServiceDate"),
-  status: mysqlEnum("status", ["active", "in_service", "out_of_service"]).default("active"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type FleetVehicle = typeof fleetVehicles.$inferSelect;
-export type InsertFleetVehicle = typeof fleetVehicles.$inferInsert;
 
 /**
  * Quizzes - الاختبارات
@@ -1389,32 +1051,6 @@ export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = typeof quizAttempts.$inferInsert;
 
 /**
- * Parts Market Listings - عروض سوق قطع الغيار
- */
-export const partsListings = mysqlTable("partsListings", {
-  id: int("id").autoincrement().primaryKey(),
-  vendorId: int("vendorId"), // البائع
-  partName: varchar("partName", { length: 255 }).notNull(),
-  partNumber: varchar("partNumber", { length: 100 }), // رقم القطعة
-  oemNumber: varchar("oemNumber", { length: 100 }), // رقم OEM
-  compatibleVins: json("compatibleVins"), // أرقام VIN المتوافقة
-  compatibleMakes: json("compatibleMakes"), // الماركات المتوافقة
-  compatibleModels: json("compatibleModels"), // الموديلات المتوافقة
-  category: varchar("category", { length: 100 }), // التصنيف
-  condition: mysqlEnum("condition", ["new", "used", "refurbished"]).default("new"),
-  price: decimal("price", { precision: 10, scale: 2 }),
-  currency: varchar("currency", { length: 5 }).default("SAR"),
-  quantity: int("quantity").default(1),
-  description: text("description"),
-  images: json("images"), // روابط الصور
-  isAvailable: boolean("isAvailable").default(true),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type PartsListing = typeof partsListings.$inferSelect;
-export type InsertPartsListing = typeof partsListings.$inferInsert;
-
-/**
  * Consultation Reports - تقارير الاستشارات
  */
 export const consultationReports = mysqlTable("consultationReports", {
@@ -1431,28 +1067,6 @@ export const consultationReports = mysqlTable("consultationReports", {
 });
 export type ConsultationReport = typeof consultationReports.$inferSelect;
 export type InsertConsultationReport = typeof consultationReports.$inferInsert;
-
-/**
- * Fleet Maintenance - صيانة الأساطيل
- */
-export const fleetMaintenance = mysqlTable("fleetMaintenance", {
-  id: int("id").autoincrement().primaryKey(),
-  vehicleId: int("vehicleId").notNull(),
-  companyId: int("fleetMaintenanceCompanyId").notNull(),
-  serviceType: varchar("serviceType", { length: 200 }),
-  description: text("maintenanceDescription"),
-  cost: decimal("maintenanceCost", { precision: 10, scale: 2 }),
-  technicianId: int("maintenanceTechnicianId"),
-  status: mysqlEnum("maintenanceStatus", ["scheduled", "in_progress", "completed", "cancelled"]).default("scheduled"),
-  scheduledDate: timestamp("scheduledDate"),
-  completedDate: timestamp("completedDate"),
-  mileageAtService: int("mileageAtService"),
-  notes: text("maintenanceNotes"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
-export type FleetMaintenance = typeof fleetMaintenance.$inferSelect;
-export type InsertFleetMaintenance = typeof fleetMaintenance.$inferInsert;
 
 
 // ============================================================

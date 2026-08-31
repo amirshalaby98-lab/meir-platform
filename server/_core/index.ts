@@ -10,7 +10,6 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupWebSocket } from "../modules/chat/websocket";
 import savedFiltersRouter from "../routes/saved-filters";
-import badgesRouter from "../routes/badges";
 import { createLogger } from "./logger";
 import { UPLOAD_DIR } from "../shared/storage";
 
@@ -305,14 +304,12 @@ async function startServer() {
   // Rate limiting for public API endpoints
   const apiRateLimit = rateLimit({ windowMs: 60_000, max: 100, keyPrefix: "api" });
   const authRateLimit = rateLimit({ windowMs: 300_000, max: 20, keyPrefix: "auth" });
-  const bookingRateLimit = rateLimit({ windowMs: 60_000, max: 10, keyPrefix: "booking" });
   const uploadRateLimit = rateLimit({ windowMs: 60_000, max: 5, keyPrefix: "upload" });
   const diagnosticsRateLimit = rateLimit({ windowMs: 60_000, max: 30, keyPrefix: "diag" });
 
   // Apply rate limits
   app.use("/api/oauth", authRateLimit);
   app.use("/api/saved-filters", apiRateLimit);
-  app.use("/api/badges", apiRateLimit);
 
   // OAuth callback
   registerOAuthRoutes(app);
@@ -322,7 +319,6 @@ async function startServer() {
 
   // REST API routes
   app.use("/api/saved-filters", savedFiltersRouter);
-  app.use("/api/badges", badgesRouter);
 
   // tRPC API with rate limiting on mutations
   app.use(

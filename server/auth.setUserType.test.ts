@@ -52,14 +52,6 @@ describe("auth.setUserType", () => {
     expect(result).toEqual({ success: true });
   });
 
-  it("should set userType to 'technician' for authenticated user", async () => {
-    const caller = appRouter.createCaller(createMockContext(mockAuthenticatedUser));
-
-    const result = await caller.auth.setUserType({ userType: "technician" });
-
-    expect(result).toEqual({ success: true });
-  });
-
   it("should set userType to 'service_provider' for authenticated user", async () => {
     const caller = appRouter.createCaller(createMockContext(mockAuthenticatedUser));
 

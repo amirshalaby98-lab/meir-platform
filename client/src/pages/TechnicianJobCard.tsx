@@ -74,12 +74,6 @@ export default function TechnicianJobCard() {
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [photoType, setPhotoType] = useState<"before" | "after" | "during">("before");
 
-  // التحقق من حالة موافقة الفني
-  const { data: myRegistration, isLoading: regLoading } = trpc.technician.getMyRegistration.useQuery(
-    undefined,
-    { enabled: !!user && user.role === 'technician' }
-  );
-
   // جلب طلبات الفني
   const { data: orders, isLoading, refetch } = trpc.serviceOrders.getTechnicianOrders.useQuery();
 
@@ -145,44 +139,6 @@ export default function TechnicianJobCard() {
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold mb-2">غير مصرح</h2>
           <p className="text-gray-500">هذه الصفحة متاحة للفنيين فقط. تواصل مع الإدارة لتفعيل حسابك كفني.</p>
-        </Card>
-      </div>
-    );
-  }
-
-  // Guard: منع الفني غير الموافق عليه من الوصول
-  if (user.role === 'technician' && !regLoading && myRegistration && myRegistration.status) {
-    if (myRegistration.status === 'pending') {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
-          <Card className="p-8 text-center max-w-md">
-            <Clock className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">طلبك قيد المراجعة</h2>
-            <p className="text-gray-500">تم استلام طلب تسجيلك كفني وهو قيد المراجعة من الإدارة. سيتم إشعارك فور الموافقة.</p>
-          </Card>
-        </div>
-      );
-    }
-    if (myRegistration.status === 'rejected') {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
-          <Card className="p-8 text-center max-w-md">
-            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">تم رفض طلبك</h2>
-            <p className="text-gray-500">للأسف تم رفض طلب تسجيلك كفني. يمكنك التواصل مع الإدارة لمزيد من التفاصيل.</p>
-          </Card>
-        </div>
-      );
-    }
-  }
-  if (user.role === 'technician' && !regLoading && !myRegistration) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50" dir="rtl">
-        <Card className="p-8 text-center max-w-md">
-          <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">لم تكمل التسجيل</h2>
-          <p className="text-gray-500">يرجى إكمال نموذج تسجيل الفني أولاً.</p>
-          <a href="/technician-registration" className="mt-4 inline-block text-yellow-600 underline">إكمال التسجيل</a>
         </Card>
       </div>
     );

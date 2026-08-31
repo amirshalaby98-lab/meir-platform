@@ -7,7 +7,6 @@ import {
   revenueTracking,
   monthlyRevenue,
   customerMetrics,
-  bookings,
   reviews,
   vendors,
 } from "../../../drizzle/schema";
@@ -160,11 +159,6 @@ export const analyticsRouter = router({
     .query(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
-      // إجمالي الطلبات
-      const totalOrders = await db
-        .select({ count: sql`COUNT(*)` })
-        .from(bookings)
-        .where(eq(bookings.technicianId, input.vendorId));
 
       // متوسط التقييم - reviews table doesn't have vendorId, get overall average
       const avgRating = await db
@@ -185,7 +179,6 @@ export const analyticsRouter = router({
         .where(eq(customerMetrics.vendorId, input.vendorId));
 
       return {
-        totalOrders: totalOrders[0]?.count || 0,
         averageRating: parseFloat(String(avgRating[0]?.avg || "0")),
         totalRevenue: parseFloat(String(totalRevenue[0]?.sum || "0")),
         uniqueCustomers: uniqueCustomers[0]?.count || 0,

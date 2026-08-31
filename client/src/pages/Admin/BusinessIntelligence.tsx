@@ -4,7 +4,6 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 
 export default function BusinessIntelligence() {
   const dashboardStats = trpc.stats.getDashboard.useQuery();
-  const bookingsTrend = trpc.adminDashboard.getBookingsTrend.useQuery();
 
   // Mock data for charts
   const revenueData = [
@@ -41,19 +40,7 @@ export default function BusinessIntelligence() {
         <p className="text-gray-600 mb-8">تحليلات شاملة لأداء المنصة</p>
 
         {/* KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-yellow-600">{dashboardStats.data?.totalBookings || 0}</p>
-              <p className="text-sm text-gray-500">إجمالي الحجوزات</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <p className="text-3xl font-bold text-green-600">{dashboardStats.data?.totalTechnicians || 0}</p>
-              <p className="text-sm text-gray-500">الفنيين</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 gap-4 mb-8">
           <Card>
             <CardContent className="p-4 text-center">
               <p className="text-3xl font-bold text-blue-600">{dashboardStats.data?.totalReviews || 0}</p>

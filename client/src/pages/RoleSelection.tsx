@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { Wrench, Car, Store } from "lucide-react";
+import { Car, Store } from "lucide-react";
 
-type UserType = "customer" | "technician" | "service_provider";
+type UserType = "customer" | "service_provider";
 
 interface RoleOption {
   type: UserType;
@@ -23,16 +23,9 @@ const roleOptions: RoleOption[] = [
     color: "from-blue-500 to-blue-600",
   },
   {
-    type: "technician",
-    title: "فني سيارات",
-    description: "أنا فني وأبغى أقدم خدماتي للعملاء",
-    icon: <Wrench className="w-10 h-10" />,
-    color: "from-yellow-500 to-yellow-600",
-  },
-  {
     type: "service_provider",
     title: "مزود خدمة",
-    description: "عندي ورشة أو محل قطع غيار أو سطحة",
+    description: "عندي خبرة وأبغى أقدم تدريب كمدرب",
     icon: <Store className="w-10 h-10" />,
     color: "from-green-500 to-green-600",
   },
@@ -63,8 +56,6 @@ export default function RoleSelection() {
   if (user?.userType) {
     if (user.userType === "customer") {
       setLocation("/service-request");
-    } else if (user.userType === "technician") {
-      setLocation("/technician-dashboard");
     } else if (user.userType === "service_provider") {
       setLocation("/vendor-dashboard");
     }
@@ -79,8 +70,6 @@ export default function RoleSelection() {
       // توجيه حسب الاختيار
       if (selected === "customer") {
         setLocation("/service-request");
-      } else if (selected === "technician") {
-        setLocation("/technician-registration");
       } else if (selected === "service_provider") {
         setLocation("/vendor-registration");
       }
@@ -158,12 +147,6 @@ export default function RoleSelection() {
           )}
         </button>
 
-        {/* Note for technicians */}
-        {selected === "technician" && (
-          <p className="text-center text-yellow-500/80 text-xs mt-3">
-            * سيتم مراجعة طلبك من قبل الإدارة قبل تفعيل حسابك كفني
-          </p>
-        )}
         {selected === "service_provider" && (
           <p className="text-center text-green-500/80 text-xs mt-3">
             * ستحتاج لتعبئة بيانات منشأتك بعد هذه الخطوة

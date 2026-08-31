@@ -24,8 +24,6 @@ function PageLoader() {
 // Lazy-loaded pages - Public
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const AddReview = lazy(() => import("@/pages/AddReview"));
-const TrackBooking = lazy(() => import("@/pages/TrackBooking"));
-const TechnicianProfile = lazy(() => import("@/pages/TechnicianProfile"));
 const MyPoints = lazy(() => import("@/pages/MyPoints"));
 const Courses = lazy(() => import("@/pages/Courses"));
 const CourseDetail = lazy(() => import("@/pages/CourseDetail"));
@@ -37,25 +35,19 @@ const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 const AboutUs = lazy(() => import("@/pages/AboutUs"));
 const MyInvoices = lazy(() => import("@/pages/MyInvoices"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
-const TechnicianBooking = lazy(() => import("@/pages/TechnicianBooking"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const VendorRegistration = lazy(() => import("@/pages/VendorRegistration"));
-const PublicSubmit = lazy(() => import("@/pages/PublicSubmit"));
 const OBDScanner = lazy(() => import("@/pages/OBDScanner"));
 const AIDiagnosis = lazy(() => import("@/pages/AIDiagnosis"));
 const DiagnosticHistory = lazy(() => import("@/pages/DiagnosticHistory"));
 const BookingDetails = lazy(() => import("@/pages/BookingDetails"));
 const Consultations = lazy(() => import("@/pages/Consultations"));
-const PartsMarket = lazy(() => import("@/pages/PartsMarket"));
-const FleetManagement = lazy(() => import("@/pages/FleetManagement"));
-const Workshops = lazy(() => import("@/pages/Workshops"));
 const Quizzes = lazy(() => import("@/pages/Quizzes"));
 const ServiceRequest = lazy(() => import("@/pages/ServiceRequest"));
 const RoleSelection = lazy(() => import("@/pages/RoleSelection"));
 const Login = lazy(() => import("@/pages/Login"));
 const Register = lazy(() => import("@/pages/Register"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
-const TechnicianRegistration = lazy(() => import("@/pages/TechnicianRegistration"));
 const TechnicianJobCard = lazy(() => import("@/pages/TechnicianJobCard"));
 const OrderTracking = lazy(() => import("@/pages/OrderTracking"));
 
@@ -69,7 +61,6 @@ const VendorDashboard = lazy(() => import("@/pages/VendorDashboard"));
 const VendorAnalytics = lazy(() => import("./pages/VendorAnalytics").then(m => ({ default: m.VendorAnalytics })));
 
 // Lazy-loaded pages - Technician
-const TechnicianDashboard = lazy(() => import("@/pages/TechnicianDashboard"));
 
 // Lazy-loaded pages - Chat
 const ChatList = lazy(() => import("./pages/ChatList").then(m => ({ default: m.ChatList })));
@@ -86,14 +77,10 @@ const AdminDashboard = lazy(() => import("@/pages/Admin/Dashboard"));
 const BrandsManagement = lazy(() => import("@/pages/Admin/Brands"));
 const ModelsManagement = lazy(() => import("@/pages/Admin/Models"));
 const PartsManagement = lazy(() => import("@/pages/Admin/Parts"));
-const BookingsManagement = lazy(() => import("@/pages/Admin/Bookings"));
 const UsersManagement = lazy(() => import("@/pages/Admin/Users"));
 const Reports = lazy(() => import("@/pages/Admin/Reports"));
 const LaborTimesAdvanced = lazy(() => import("@/pages/Admin/LaborTimesAdvanced"));
 const PartPrices = lazy(() => import("@/pages/Admin/PartPrices"));
-const TowTrucksManagement = lazy(() => import("@/pages/Admin/TowTrucksManagement"));
-const PartsShopsManagement = lazy(() => import("@/pages/Admin/PartsShopsManagement"));
-const JunkyardsManagement = lazy(() => import("@/pages/Admin/JunkyardsManagement"));
 const NotificationsManagement = lazy(() => import("@/pages/Admin/Notifications"));
 const InvoicesManagement = lazy(() => import("@/pages/Admin/Invoices"));
 const VendorApprovals = lazy(() => import("@/pages/Admin/VendorApprovals"));
@@ -102,8 +89,6 @@ const BusinessIntelligence = lazy(() => import("@/pages/Admin/BusinessIntelligen
 const RolesManagement = lazy(() => import("@/pages/Admin/Roles"));
 const ServiceOrdersAdmin = lazy(() => import("@/pages/Admin/ServiceOrders"));
 const UserDetail = lazy(() => import("@/pages/Admin/UserDetail"));
-const PendingTechnicians = lazy(() => import("@/pages/Admin/PendingTechnicians"));
-const TechniciansManagement = lazy(() => import("@/pages/Admin/Technicians"));
 const SiteAnalytics = lazy(() => import("@/pages/Admin/SiteAnalytics"));
 
 // Lazy-loaded pages - SEO Service Pages
@@ -122,7 +107,6 @@ const AboutPage = lazy(() => import("@/pages/AboutPage"));
 const BlogPage = lazy(() => import("@/pages/blog/BlogPage"));
 const BatterySignsArticle = lazy(() => import("@/pages/blog/BatterySignsArticle"));
 const StarterAlternatorArticle = lazy(() => import("@/pages/blog/StarterAlternatorArticle"));
-const MobileCarTechnicianArticle = lazy(() => import("@/pages/blog/MobileCarTechnicianArticle"));
 const MyVehicles = lazy(() => import("@/pages/MyVehicles"));
 const MyOBDReports = lazy(() => import("@/pages/MyOBDReports"));
 const AdminOBDReports = lazy(() => import("@/pages/Admin/OBDReports"));
@@ -136,8 +120,6 @@ function Router() {
         <Route path={"/home"} component={Home} />
         <Route path={"/admin"} component={Admin} />
         <Route path={"/add-review"} component={AddReview} />
-        <Route path={"/track"} component={TrackBooking} />
-        <Route path={"/technician/:id"} component={TechnicianProfile} />
         <Route path={"/my-points"} component={MyPoints} />
         <Route path={"/my-learning"} component={MyLearning} />
         <Route path={"/certificates/:id"} component={Certificate} />
@@ -148,7 +130,6 @@ function Router() {
         <Route path={"/courses/:slug"} component={CourseDetail} />
         <Route path={"/courses/:slug/learn"} component={CourseLearn} />
         <Route path={"/unifonic-settings"} component={UnifonicSettings} />
-        <Route path={"/book-technician"} component={TechnicianBooking} />
         <Route path={"/payment"} component={Payment} />
         <Route path={"/price-calculator"} component={PriceCalculator} />
         <Route path="/how-it-works" component={HowItWorks} />
@@ -164,23 +145,17 @@ function Router() {
         <Route path={"/admin/brands"} component={BrandsManagement} />
         <Route path={"/admin/models"} component={ModelsManagement} />
         <Route path={"/admin/parts"} component={PartsManagement} />
-        <Route path={"/admin/bookings"} component={BookingsManagement} />
         <Route path={"/admin/users"} component={UsersManagement} />
         <Route path={"/admin/reports"} component={Reports} />
         <Route path={"/admin/labor-times-advanced"} component={LaborTimesAdvanced} />
         <Route path={"/admin/part-prices"} component={PartPrices} />
-        <Route path={"/admin/tow-trucks"} component={TowTrucksManagement} />
-        <Route path={"/admin/parts-shops"} component={PartsShopsManagement} />
-        <Route path={"/admin/junkyards"} component={JunkyardsManagement} />
         <Route path={"/admin/notifications"} component={NotificationsManagement} />
         <Route path="/admin/invoices" component={InvoicesManagement} />
         <Route path="/admin/vendor-approvals" component={VendorApprovals} />
         <Route path="/admin/monitoring" component={AdvancedDashboard} />
         <Route path="/vendor-registration" component={VendorRegistration} />
-        <Route path="/add-service" component={PublicSubmit} />
         <Route path="/vendor-dashboard" component={VendorDashboard} />
         <Route path="/vendor-analytics" component={VendorAnalytics} />
-        <Route path="/technician-dashboard" component={TechnicianDashboard} />
         <Route path="/chat" component={ChatList} />
         <Route path="/chat/:conversationId" component={Chat} />
         <Route path="/booking/:id" component={BookingDetails} />
@@ -188,15 +163,11 @@ function Router() {
         <Route path="/ai-diagnosis" component={AIDiagnosis} />
         <Route path="/diagnostic-history" component={DiagnosticHistory} />
         <Route path="/consultations" component={Consultations} />
-        <Route path="/parts-market" component={PartsMarket} />
-        <Route path="/fleet" component={FleetManagement} />
-        <Route path="/workshops" component={Workshops} />
         <Route path="/quizzes" component={Quizzes} />
         <Route path="/select-role" component={RoleSelection} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/forgot-password" component={ForgotPassword} />
-        <Route path="/technician-registration" component={TechnicianRegistration} />
         <Route path="/service-request" component={ServiceRequest} />
         <Route path="/technician-orders" component={TechnicianJobCard} />
         <Route path="/my-orders" component={OrderTracking} />
@@ -204,8 +175,6 @@ function Router() {
         <Route path="/admin/roles" component={RolesManagement} />
         <Route path="/admin/service-orders" component={ServiceOrdersAdmin} />
         <Route path="/admin/users/:id" component={UserDetail} />
-        <Route path="/admin/pending-technicians" component={PendingTechnicians} />
-        <Route path="/admin/technicians" component={TechniciansManagement} />
         {/* SEO Service Pages */}
         <Route path="/services/battery" component={BatteryService} />
         <Route path="/services/starter" component={StarterService} />
@@ -220,7 +189,6 @@ function Router() {
         <Route path="/blog" component={BlogPage} />
         <Route path="/blog/battery-signs" component={BatterySignsArticle} />
         <Route path="/blog/starter-alternator" component={StarterAlternatorArticle} />
-        <Route path="/blog/mobile-car-technician" component={MobileCarTechnicianArticle} />
         <Route path="/my-vehicles" component={MyVehicles} />
         <Route path="/my-obd-reports" component={MyOBDReports} />
         <Route path="/admin/obd-reports" component={AdminOBDReports} />

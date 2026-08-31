@@ -11,12 +11,6 @@ export { getDb } from "./shared/database";
 // Users Module
 export { upsertUser, getUserByOpenId, getAllUsers, getUserById, updateUserRole, setUserType, toggleUserActive } from "./modules/users";
 
-// Booking Module
-export { createBooking, getAllBookings, getBookingById, updateBookingStatus, getBookingsByDateRange, markReviewAsSent, getCompletedBookingsForReview } from "./modules/booking";
-
-// Technicians Module
-export { getAllTechnicians, getTechnicianById, getAvailableTechnicians, createTechnician, updateTechnicianStatus, assignTechnicianToBooking, getTechnicianBookings, getTechnicianStats, getTechnicianReviews, getTechnicianReviewsCount, getTechnicianCompletedBookings, getTechnicianMonthlyStats, getTechnicianRatingDistribution, getTechnicianRatingSummary } from "./modules/technicians";
-
 // Reviews Module
 export { createReview, getAllReviews, getApprovedReviews, updateReviewApproval, submitReview, getReviewsByTechnician, getReviewsByDateRange, updateVendorRatingSummary, markReviewHelpful, markReviewUnhelpful, getTechniciansByRatingRange } from "./modules/reviews";
 
@@ -28,6 +22,3 @@ export { getAllCarBrands, getCarBrandById, createCarBrand, updateCarBrand, delet
 
 // Analytics Module
 export { getFilteredTechnicianStats, getAnalyticsReport, saveTechnicianFilter, getSavedFilters, getSavedFilterById, updateSavedFilter, deleteSavedFilter, updateFilterUsageCount, setDefaultFilter, getDefaultFilter } from "./modules/analytics";
-
-// Gamification Module
-export { getTechnicianBadges, awardBadgeToTechnician, getTechnicianRewards, awardRewardToTechnician, getTechnicianLeaderboardPosition, getTopTechniciansLeaderboard, checkAndAwardBadges, updateLeaderboard } from "./modules/gamification";

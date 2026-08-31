@@ -3,20 +3,17 @@ import { adminProcedure, router } from "../../_core/trpc";
 import { getDb } from "../../shared/database";
 import {
   users,
-  bookings,
   contactMessages,
-  technicians,
   reviews,
   loyaltyPoints,
   courses,
-  enrollments,
 } from "../../../drizzle/schema";
-import { eq, desc, sql, gte, lte, and, count } from "drizzle-orm";
+import { eq, desc, sql, gte, lte, and } from "drizzle-orm";
 
 export const adminDashboardRouter = router({
   /**
    * الحصول على ملخص شامل للمنصة
-   * يشمل: إجمالي المستخدمين، الحجوزات، الإيرادات، الفنيين، التقييمات
+   * يشمل: إجمالي المستخدمين، الإيرادات، التقييمات
    */
   getPlatformSummary: adminProcedure.query(async () => {
     const db = await getDb();
@@ -36,48 +33,6 @@ export const adminDashboardRouter = router({
       .from(users)
       .where(gte(users.createdAt, weekAgo));
     const newUsersThisWeek = newUsersResult[0]?.count || 0;
-
-    // إجمالي الحجوزات
-    const totalBookingsResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(bookings);
-    const totalBookings = totalBookingsResult[0]?.count || 0;
-
-    // حجوزات اليوم
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayBookingsResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(bookings)
-      .where(gte(bookings.createdAt, today));
-    const todayBookings = todayBookingsResult[0]?.count || 0;
-
-    // الحجوزات المعلقة
-    const pendingBookingsResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(bookings)
-      .where(eq(bookings.status, "pending"));
-    const pendingBookings = pendingBookingsResult[0]?.count || 0;
-
-    // الحجوزات المكتملة
-    const completedBookingsResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(bookings)
-      .where(eq(bookings.status, "completed"));
-    const completedBookings = completedBookingsResult[0]?.count || 0;
-
-    // إجمالي الفنيين
-    const totalTechniciansResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(technicians);
-    const totalTechnicians = totalTechniciansResult[0]?.count || 0;
-
-    // الفنيين المتاحين
-    const availableTechniciansResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(technicians)
-      .where(eq(technicians.status, "available"));
-    const availableTechnicians = availableTechniciansResult[0]?.count || 0;
 
     // إجمالي التقييمات
     const totalReviewsResult = await db
@@ -122,18 +77,6 @@ export const adminDashboardRouter = router({
       users: {
         total: totalUsers,
         newThisWeek: newUsersThisWeek,
-      },
-      bookings: {
-        total: totalBookings,
-        today: todayBookings,
-        pending: pendingBookings,
-        completed: completedBookings,
-        completionRate: totalBookings > 0 ? Math.round((completedBookings / totalBookings) * 100) : 0,
-      },
-      technicians: {
-        total: totalTechnicians,
-        available: availableTechnicians,
-        busy: totalTechnicians - availableTechnicians,
       },
       reviews: {
         total: totalReviews,
@@ -182,99 +125,6 @@ export const adminDashboardRouter = router({
 
       return recentUsers;
     }),
-
-  /**
-   * إحصائيات الحجوزات حسب الفترة الزمنية
-   */
-  getBookingsTrend: adminProcedure
-    .input(
-      z.object({
-        period: z.enum(["7days", "30days", "90days"]).default("7days"),
-      }).optional()
-    )
-    .query(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-      const period = input?.period || "7days";
-
-      const days = period === "7days" ? 7 : period === "30days" ? 30 : 90;
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-
-      const bookingsData = await db
-        .select({
-          date: sql<string>`DATE(createdAt)`,
-          count: sql<number>`COUNT(*)`,
-          pending: sql<number>`SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END)`,
-          confirmed: sql<number>`SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END)`,
-          completed: sql<number>`SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)`,
-          cancelled: sql<number>`SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)`,
-        })
-        .from(bookings)
-        .where(gte(bookings.createdAt, startDate))
-        .groupBy(sql`DATE(createdAt)`)
-        .orderBy(sql`DATE(createdAt)`);
-
-      return bookingsData;
-    }),
-
-  /**
-   * أداء الفنيين - ترتيب حسب الإنجاز والتقييم
-   */
-  getTechnicianPerformance: adminProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
-
-    const techPerformance = await db
-      .select({
-        id: technicians.id,
-        name: technicians.name,
-        phone: technicians.phone,
-        specialization: technicians.specialization,
-        location: technicians.location,
-        status: technicians.status,
-        rating: technicians.rating,
-        completedJobs: technicians.completedJobs,
-      })
-      .from(technicians)
-      .orderBy(desc(technicians.completedJobs));
-
-    // حساب الحجوزات المسندة لكل فني
-    const techWithBookings = await Promise.all(
-      techPerformance.map(async (tech) => {
-        const assignedBookings = await db
-          .select({ count: sql<number>`COUNT(*)` })
-          .from(bookings)
-          .where(eq(bookings.technicianId, tech.id));
-
-        const completedBookings = await db
-          .select({ count: sql<number>`COUNT(*)` })
-          .from(bookings)
-          .where(
-            and(
-              eq(bookings.technicianId, tech.id),
-              eq(bookings.status, "completed")
-            )
-          );
-
-        return {
-          ...tech,
-          assignedBookings: assignedBookings[0]?.count || 0,
-          completedBookings: completedBookings[0]?.count || 0,
-          completionRate:
-            assignedBookings[0]?.count > 0
-              ? Math.round(
-                  ((completedBookings[0]?.count || 0) /
-                    assignedBookings[0]?.count) *
-                    100
-                )
-              : 0,
-        };
-      })
-    );
-
-    return techWithBookings;
-  }),
 
   /**
    * إحصائيات المحتوى - التقييمات والرسائل
@@ -349,27 +199,11 @@ export const adminDashboardRouter = router({
     }),
 
   /**
-   * الحجوزات المعلقة لفترة طويلة (تنبيهات)
+   * تنبيهات: تقييمات سلبية حديثة
    */
   getAlerts: adminProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
-
-    // حجوزات معلقة لأكثر من 24 ساعة
-    const dayAgo = new Date();
-    dayAgo.setDate(dayAgo.getDate() - 1);
-
-    const stalePendingBookings = await db
-      .select()
-      .from(bookings)
-      .where(
-        and(
-          eq(bookings.status, "pending"),
-          lte(bookings.createdAt, dayAgo)
-        )
-      )
-      .orderBy(bookings.createdAt)
-      .limit(10);
 
     // تقييمات سلبية حديثة (1-2 نجوم)
     const weekAgo = new Date();
@@ -387,60 +221,9 @@ export const adminDashboardRouter = router({
       .orderBy(desc(reviews.createdAt))
       .limit(5);
 
-    // فنيين غير متصلين
-    const offlineTechnicians = await db
-      .select()
-      .from(technicians)
-      .where(eq(technicians.status, "offline"));
-
     return {
-      stalePendingBookings,
       negativeReviews,
-      offlineTechnicians,
-      alertsCount:
-        stalePendingBookings.length +
-        negativeReviews.length +
-        offlineTechnicians.length,
+      alertsCount: negativeReviews.length,
     };
-  }),
-
-  /**
-   * إحصائيات الخدمات الأكثر طلباً
-   */
-  getTopServices: adminProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
-
-    const topServices = await db
-      .select({
-        service: bookings.service,
-        count: sql<number>`COUNT(*)`,
-      })
-      .from(bookings)
-      .groupBy(bookings.service)
-      .orderBy(desc(sql`COUNT(*)`))
-      .limit(10);
-
-    return topServices;
-  }),
-
-  /**
-   * إحصائيات المواقع الأكثر طلباً
-   */
-  getTopLocations: adminProcedure.query(async () => {
-    const db = await getDb();
-    if (!db) throw new Error("Database not available");
-
-    const topLocations = await db
-      .select({
-        location: bookings.location,
-        count: sql<number>`COUNT(*)`,
-      })
-      .from(bookings)
-      .groupBy(bookings.location)
-      .orderBy(desc(sql`COUNT(*)`))
-      .limit(10);
-
-    return topLocations;
   }),
 });

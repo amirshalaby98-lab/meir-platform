@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Truck, Store, Wrench, GraduationCap, User, Phone, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import { GraduationCap, Phone, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,14 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { trpc } from "@/lib/trpc";
 
-type VendorType = "parts_shop" | "technician" | "junkyard" | "tow_truck" | "trainer";
+type VendorType = "trainer";
 type Step = "type" | "form" | "otp" | "success";
 
 const vendorTypes: { type: VendorType; label: string; icon: any; desc: string }[] = [
-  { type: "tow_truck", label: "سطحة", icon: Truck, desc: "خدمات نقل وسحب السيارات" },
-  { type: "parts_shop", label: "محل قطع غيار", icon: Store, desc: "بيع قطع غيار أصلية ومستعملة" },
-  { type: "junkyard", label: "تشليح", icon: Wrench, desc: "قطع غيار مستعملة مفحوصة" },
-  { type: "technician", label: "فني سيارات", icon: User, desc: "صيانة وإصلاح السيارات" },
   { type: "trainer", label: "مدرب", icon: GraduationCap, desc: "تدريب فنيين على صيانة السيارات" },
 ];
 
@@ -114,78 +110,6 @@ export default function VendorRegistration() {
     );
 
     switch (vendorType) {
-      case "tow_truck":
-        return (
-          <>
-            <div>
-              <Label>اسم السطحة / المؤسسة *</Label>
-              <Input value={formData.businessName} onChange={(e) => updateField("businessName", e.target.value)} required placeholder="مثال: سطحة الأمانة" />
-            </div>
-            {common}
-            <div>
-              <Label>وصف الخدمات</Label>
-              <Textarea value={formData.description} onChange={(e) => updateField("description", e.target.value)} placeholder="مثال: نقل داخل المدينة، نقل بين المدن، متوفر 24/7" />
-            </div>
-          </>
-        );
-      case "parts_shop":
-        return (
-          <>
-            <div>
-              <Label>اسم المحل *</Label>
-              <Input value={formData.businessName} onChange={(e) => updateField("businessName", e.target.value)} required placeholder="مثال: محلات الأمانة لقطع الغيار" />
-            </div>
-            {common}
-            <div>
-              <Label>التخصصات</Label>
-              <Textarea value={formData.description} onChange={(e) => updateField("description", e.target.value)} placeholder="مثال: قطع أصلية، بطاريات، زيوت ومحركات" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>رقم السجل التجاري</Label>
-                <Input value={formData.commercialLicense} onChange={(e) => updateField("commercialLicense", e.target.value)} placeholder="اختياري" />
-              </div>
-              <div>
-                <Label>الرقم الضريبي</Label>
-                <Input value={formData.taxId} onChange={(e) => updateField("taxId", e.target.value)} placeholder="اختياري" />
-              </div>
-            </div>
-          </>
-        );
-      case "junkyard":
-        return (
-          <>
-            <div>
-              <Label>اسم التشليح *</Label>
-              <Input value={formData.businessName} onChange={(e) => updateField("businessName", e.target.value)} required placeholder="مثال: تشليح الفيصل المعتمد" />
-            </div>
-            {common}
-            <div>
-              <Label>التخصصات</Label>
-              <Textarea value={formData.description} onChange={(e) => updateField("description", e.target.value)} placeholder="مثال: قطع يابانية، قطع أمريكية، محركات مفحوصة" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>رقم السجل التجاري</Label>
-                <Input value={formData.commercialLicense} onChange={(e) => updateField("commercialLicense", e.target.value)} placeholder="اختياري" />
-              </div>
-            </div>
-          </>
-        );
-      case "technician":
-        return (
-          <>
-            <div>
-              <Label>اسم الورشة / الخدمة *</Label>
-              <Input value={formData.businessName} onChange={(e) => updateField("businessName", e.target.value)} required placeholder="مثال: ورشة النخبة" />
-            </div>
-            {common}
-            <div>
-              <Label>التخصص والخدمات</Label>
-              <Textarea value={formData.description} onChange={(e) => updateField("description", e.target.value)} placeholder="مثال: كهرباء سيارات، بطاريات، دينمو وسلف" />
-            </div>
-          </>
-        );
       case "trainer":
         return (
           <>

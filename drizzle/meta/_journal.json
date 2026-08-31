@@ -225,6 +225,13 @@
       "when": 1786481785147,
       "tag": "0031_fuzzy_drax",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1788141789198,
+      "tag": "0032_daily_famine",
+      "breakpoints": true
     }
   ]
 }

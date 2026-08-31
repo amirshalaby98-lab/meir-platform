@@ -41,10 +41,6 @@ describe("New Features - File Structure", () => {
     expect(existsSync(resolve(clientDir, "components/BookingNotification.tsx"))).toBe(true);
   });
 
-  it("TechnicianTracker component exists", () => {
-    expect(existsSync(resolve(clientDir, "components/TechnicianTracker.tsx"))).toBe(true);
-  });
-
   it("SEOHead component exists", () => {
     expect(existsSync(resolve(clientDir, "components/SEOHead.tsx"))).toBe(true);
   });

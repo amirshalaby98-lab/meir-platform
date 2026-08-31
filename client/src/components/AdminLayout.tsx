@@ -17,15 +17,11 @@ import {
   ChevronDown,
   ChevronLeft,
   ArrowRight,
-  Briefcase,
   DollarSign,
   Tag,
   Bell,
   FileText,
   Activity,
-  Truck,
-  Store,
-  Warehouse,
   PieChart,
   Search,
   Home,
@@ -35,7 +31,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { trpc } from "@/lib/trpc";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -74,7 +69,6 @@ const navGroups: NavGroup[] = [
     icon: Calendar,
     defaultOpen: true,
     items: [
-      { href: "/admin/bookings", icon: Calendar, label: "الحجوزات" },
       { href: "/admin/invoices", icon: FileText, label: "الفواتير" },
       { href: "/admin/notifications", icon: Bell, label: "الإشعارات" },
     ],
@@ -85,8 +79,6 @@ const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { href: "/admin/users", icon: Users, label: "العملاء" },
-      { href: "/admin/technicians", icon: Briefcase, label: "الفنيين" },
-      { href: "/admin/pending-technicians", icon: Clock, label: "طلبات الفنيين" },
       { href: "/admin/vendor-approvals", icon: UserPlus, label: "موافقات البائعين" },
     ],
   },
@@ -114,16 +106,6 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: "الخدمات الخارجية",
-    icon: Truck,
-    defaultOpen: false,
-    items: [
-      { href: "/admin/tow-trucks", icon: Truck, label: "السطحات" },
-      { href: "/admin/parts-shops", icon: Store, label: "محلات القطع" },
-      { href: "/admin/junkyards", icon: Warehouse, label: "التشاليح" },
-    ],
-  },
-  {
     title: "تشخيص OBD",
     icon: Activity,
     defaultOpen: true,
@@ -146,28 +128,7 @@ export default function AdminLayout({ children, title, description }: AdminLayou
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  // جلب أعداد الإشعارات الديناميكية
-  const { data: pendingBookings } = trpc.admin.getBookings.useQuery(undefined, {
-    select: (data) => data?.filter((b: any) => b.status === "pending") || [],
-  });
-  const { data: pendingTechs } = trpc.technician.getPending.useQuery(undefined, {
-    retry: false,
-  });
-  const notifications = (pendingBookings?.length || 0) + (pendingTechs?.length || 0);
-
-  // تحديث badges في القائمة
-  const dynamicNavGroups = navGroups.map(group => ({
-    ...group,
-    items: group.items.map(item => {
-      if (item.href === "/admin/pending-technicians") {
-        return { ...item, badge: pendingTechs?.length || 0 };
-      }
-      if (item.href === "/admin/bookings") {
-        return { ...item, badge: pendingBookings?.length || 0 };
-      }
-      return item;
-    }),
-  }));
+  const dynamicNavGroups = navGroups;
 
   // تهيئة المجموعات المفتوحة
   useEffect(() => {
@@ -415,11 +376,6 @@ export default function AdminLayout({ children, title, description }: AdminLayou
             <div className="relative">
               <button className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
                 <Bell className="w-5 h-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
               </button>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">

@@ -42,6 +42,13 @@ const AIDiagnosis = lazy(() => import("@/pages/AIDiagnosis"));
 const DiagnosticHistory = lazy(() => import("@/pages/DiagnosticHistory"));
 const BookingDetails = lazy(() => import("@/pages/BookingDetails"));
 const Consultations = lazy(() => import("@/pages/Consultations"));
+const Marketplace = lazy(() => import("@/pages/Marketplace"));
+const MarketplaceProduct = lazy(() => import("@/pages/MarketplaceProduct"));
+const MarketplaceCheckout = lazy(() => import("@/pages/MarketplaceCheckout"));
+const MyProductOrders = lazy(() => import("@/pages/MyProductOrders"));
+const ProductsAdmin = lazy(() => import("@/pages/Admin/Products"));
+const ProductOrdersAdmin = lazy(() => import("@/pages/Admin/ProductOrders"));
+const ConsultationsAdmin = lazy(() => import("@/pages/Admin/Consultations"));
 const Quizzes = lazy(() => import("@/pages/Quizzes"));
 const ServiceRequest = lazy(() => import("@/pages/ServiceRequest"));
 const RoleSelection = lazy(() => import("@/pages/RoleSelection"));
@@ -163,6 +170,13 @@ function Router() {
         <Route path="/ai-diagnosis" component={AIDiagnosis} />
         <Route path="/diagnostic-history" component={DiagnosticHistory} />
         <Route path="/consultations" component={Consultations} />
+        <Route path="/marketplace" component={Marketplace} />
+        <Route path="/marketplace/products/:slug" component={MarketplaceProduct} />
+        <Route path="/marketplace/checkout/:productId" component={MarketplaceCheckout} />
+        <Route path="/my-product-orders" component={MyProductOrders} />
+        <Route path="/admin/products" component={ProductsAdmin} />
+        <Route path="/admin/product-orders" component={ProductOrdersAdmin} />
+        <Route path="/admin/consultations" component={ConsultationsAdmin} />
         <Route path="/quizzes" component={Quizzes} />
         <Route path="/select-role" component={RoleSelection} />
         <Route path="/login" component={Login} />

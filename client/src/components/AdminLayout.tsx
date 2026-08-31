@@ -28,6 +28,9 @@ import {
   GraduationCap,
   Shield,
   UserPlus,
+  ShoppingBag,
+  MessageCircle,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -111,6 +114,23 @@ const navGroups: NavGroup[] = [
     defaultOpen: true,
     items: [
       { href: "/admin/obd-reports", icon: FileText, label: "تقارير الفحص" },
+    ],
+  },
+  {
+    title: "المتجر",
+    icon: ShoppingBag,
+    defaultOpen: false,
+    items: [
+      { href: "/admin/products", icon: Package, label: "المنتجات" },
+      { href: "/admin/product-orders", icon: Truck, label: "طلبات المنتجات" },
+    ],
+  },
+  {
+    title: "الاستشارات",
+    icon: MessageCircle,
+    defaultOpen: false,
+    items: [
+      { href: "/admin/consultations", icon: MessageCircle, label: "طلبات الاستشارات" },
     ],
   },
   {

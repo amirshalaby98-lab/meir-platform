@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Phone, Menu, X, Wrench, User, LogIn, LogOut, ClipboardList, Info, Cpu, Shield } from "lucide-react";
+import { Phone, Menu, X, Wrench, User, LogIn, LogOut, ClipboardList, Info, Cpu, Shield, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -38,6 +38,10 @@ export default function Header() {
           <Link href="/obd-scanner" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
             <Cpu className="w-4 h-4" />
             {t("header.smartDiagnosis")}
+          </Link>
+          <Link href="/marketplace" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
+            <ShoppingBag className="w-4 h-4" />
+            {t("header.marketplace")}
           </Link>
 
           {/* طلباتي - يظهر فقط للمسجلين */}
@@ -140,6 +144,10 @@ export default function Header() {
             <Link href="/obd-scanner" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
               <Cpu className="w-4 h-4" />
               {t("header.smartDiagnosis")}
+            </Link>
+            <Link href="/marketplace" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
+              <ShoppingBag className="w-4 h-4" />
+              {t("header.marketplace")}
             </Link>
 
             {/* طلباتي - يظهر فقط للمسجلين */}

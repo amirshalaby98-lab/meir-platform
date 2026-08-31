@@ -22,6 +22,7 @@ import { chatRouter } from "./modules/chat";
 import { analyticsRouter } from "./modules/analytics";
 import { diagnosticsRouter } from "./modules/diagnostics/router";
 import { consultationsRouter } from "./modules/consultations/router";
+import { productsRouter, productOrdersRouter } from "./modules/marketplace";
 import { serviceOrdersRouter } from "./modules/service-orders";
 import { vehiclesRouter } from "./modules/vehicles/router";
 import { obdReportsRouter } from "./modules/obd-reports/router";
@@ -173,6 +174,8 @@ export const appRouter = router({
   adminDashboard: adminDashboardRouter,
   diagnostics: diagnosticsRouter,
   consultations: consultationsRouter,
+  products: productsRouter,
+  productOrders: productOrdersRouter,
   serviceOrders: serviceOrdersRouter,
   vehicles: vehiclesRouter,
   obdReports: obdReportsRouter,

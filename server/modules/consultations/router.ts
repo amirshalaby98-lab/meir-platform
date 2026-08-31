@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { publicProcedure, protectedProcedure, router } from "../../_core/trpc";
+import { protectedProcedure, adminProcedure, router } from "../../_core/trpc";
 import { getDb } from "../../shared/database";
-import { consultations, consultationReports } from "../../../drizzle/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { consultations, consultationReports, consultationPayments } from "../../../drizzle/schema";
+import { eq, desc, sql } from "drizzle-orm";
 import { invokeLLM } from "../../_core/llm";
+import { storagePut } from "../../shared/storage";
 
 export const consultationsRouter = router({
   // إنشاء استشارة جديدة
@@ -35,9 +36,65 @@ export const consultationsRouter = router({
         description: input.description,
         attachments: input.attachments || [],
         price: prices[input.consultationType],
-        status: "pending",
+        status: "pending_payment",
       });
       return { id: result.insertId, price: prices[input.consultationType] };
+    }),
+
+  // إرسال إيصال الدفع
+  submitPayment: protectedProcedure
+    .input(z.object({
+      consultationId: z.number(),
+      paymentMethod: z.enum(["bank_transfer", "stc_pay", "mada", "credit_card", "cash"]),
+      reference: z.string().optional(),
+      receiptBase64: z.string().optional(),
+      mimeType: z.string().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const [consultation] = await db.select().from(consultations).where(eq(consultations.id, input.consultationId));
+      if (!consultation) throw new Error("الاستشارة غير موجودة");
+      if (consultation.userId !== ctx.user.id) throw new Error("غير مصرح لك بهذا الإجراء");
+
+      let receiptUrl: string | null = null;
+      if (input.receiptBase64) {
+        const buffer = Buffer.from(input.receiptBase64, "base64");
+        const ext = (input.mimeType || "image/jpeg").split("/")[1] || "jpg";
+        const key = `consultations/${input.consultationId}/receipts/${Date.now()}.${ext}`;
+        const result = await storagePut(key, buffer, input.mimeType || "image/jpeg");
+        receiptUrl = result.url;
+      }
+
+      await db.insert(consultationPayments).values({
+        consultationId: input.consultationId,
+        amount: consultation.price || "0",
+        paymentMethod: input.paymentMethod,
+        reference: input.reference,
+        receiptUrl,
+        status: "pending",
+      });
+
+      return { success: true, message: "تم إرسال إثبات الدفع، سيتم مراجعته من الإدارة" };
+    }),
+
+  // Admin: تأكيد الدفع
+  confirmPayment: adminProcedure
+    .input(z.object({ paymentId: z.number(), consultationId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.update(consultationPayments)
+        .set({ status: "confirmed", confirmedAt: new Date(), confirmedBy: ctx.user.name || "أدمن" })
+        .where(eq(consultationPayments.id, input.paymentId));
+
+      await db.update(consultations)
+        .set({ status: "pending", isPaid: true, paidAt: new Date() })
+        .where(eq(consultations.id, input.consultationId));
+
+      return { success: true, message: "تم تأكيد الدفع" };
     }),
 
   // جلب استشاراتي
@@ -52,14 +109,19 @@ export const consultationsRouter = router({
   // جلب استشارة بالتفصيل
   getById: protectedProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new Error("Database not available");
       const [consultation] = await db.select().from(consultations).where(eq(consultations.id, input.id));
       if (!consultation) return null;
+      if (consultation.userId !== ctx.user.id && ctx.user.role !== "admin") {
+        throw new Error("غير مصرح لك بعرض هذه الاستشارة");
+      }
       const reports = await db.select().from(consultationReports)
         .where(eq(consultationReports.consultationId, input.id));
-      return { ...consultation, reports };
+      const payments = await db.select().from(consultationPayments)
+        .where(eq(consultationPayments.consultationId, input.id));
+      return { ...consultation, reports, payments };
     }),
 
   // تحليل AI سريع للاستشارة
@@ -96,14 +158,14 @@ ${input.vehicleInfo.mileage ? `الكيلومترات: ${input.vehicleInfo.milea
     }),
 
   // Admin: جلب جميع الاستشارات
-  getAll: protectedProcedure.query(async () => {
+  getAll: adminProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
     return db.select().from(consultations).orderBy(desc(consultations.createdAt));
   }),
 
   // Admin: تعيين مهندس
-  assignEngineer: protectedProcedure
+  assignEngineer: adminProcedure
     .input(z.object({ consultationId: z.number(), engineerId: z.number() }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -115,7 +177,7 @@ ${input.vehicleInfo.mileage ? `الكيلومترات: ${input.vehicleInfo.milea
     }),
 
   // Admin: إضافة تقرير
-  addReport: protectedProcedure
+  addReport: adminProcedure
     .input(z.object({
       consultationId: z.number(),
       diagnosis: z.string(),
@@ -147,7 +209,7 @@ ${input.vehicleInfo.mileage ? `الكيلومترات: ${input.vehicleInfo.milea
     }),
 
   // إحصائيات
-  getStats: protectedProcedure.query(async () => {
+  getStats: adminProcedure.query(async () => {
     const db = await getDb();
     if (!db) throw new Error("Database not available");
     const [stats] = await db.select({

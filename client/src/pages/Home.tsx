@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import StatsCounter from "@/components/StatsCounter";
 import ServicesSection from "@/components/ServicesSection";
+import MarketplaceTeaser from "@/components/MarketplaceTeaser";
 import CoverageMap from "@/components/CoverageMap";
 import LoyaltyProgram from "@/components/LoyaltyProgram";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -16,6 +17,7 @@ export default function Home() {
         <HeroSection />
         <StatsCounter />
         <ServicesSection />
+        <MarketplaceTeaser />
         <CoverageMap />
         <LoyaltyProgram />
         <TestimonialsSection />

@@ -94,7 +94,7 @@ export default function Payment() {
 
               <div className="space-y-3">
                 <Button
-                  onClick={() => window.location.href = "/track"}
+                  onClick={() => window.location.href = "/my-orders"}
                   className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold"
                 >
                   تتبع حجزك

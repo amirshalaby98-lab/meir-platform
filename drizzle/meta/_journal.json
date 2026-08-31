@@ -232,6 +232,13 @@
       "when": 1788141789198,
       "tag": "0032_daily_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1788163712326,
+      "tag": "0033_wealthy_luminals",
+      "breakpoints": true
     }
   ]
 }

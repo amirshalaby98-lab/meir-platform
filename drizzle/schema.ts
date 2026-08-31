@@ -989,7 +989,7 @@ export const consultations = mysqlTable("consultations", {
   isPaid: boolean("isPaid").default(false),
   paidAt: timestamp("paidAt"),
   // Status
-  status: mysqlEnum("status", ["pending", "assigned", "in_progress", "completed", "cancelled"]).default("pending"),
+  status: mysqlEnum("status", ["pending_payment", "pending", "assigned", "in_progress", "completed", "cancelled"]).default("pending_payment"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1068,6 +1068,103 @@ export const consultationReports = mysqlTable("consultationReports", {
 export type ConsultationReport = typeof consultationReports.$inferSelect;
 export type InsertConsultationReport = typeof consultationReports.$inferInsert;
 
+/**
+ * Consultation Payments - دفعات الاستشارات (نفس نمط orderPayments اليدوي)
+ */
+export const consultationPayments = mysqlTable("consultationPayments", {
+  id: int("id").autoincrement().primaryKey(),
+  consultationId: int("consultationId").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "stc_pay", "mada", "credit_card", "cash"]).notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "failed", "refunded"]).default("pending").notNull(),
+  reference: varchar("reference", { length: 255 }),
+  receiptUrl: varchar("receiptUrl", { length: 500 }),
+  confirmedAt: timestamp("confirmedAt"),
+  confirmedBy: varchar("confirmedBy", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ConsultationPayment = typeof consultationPayments.$inferSelect;
+export type InsertConsultationPayment = typeof consultationPayments.$inferInsert;
+
+// ============================================================
+// المتجر - بيع جهاز الفحص (Marketplace)
+// ============================================================
+
+/**
+ * Products - كتالوج المنتجات (يديره الأدمن من لوحة التحكم)
+ */
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  stockQuantity: int("stockQuantity").default(0).notNull(),
+  images: json("images"), // string[] من روابط /uploads/...
+  status: mysqlEnum("status", ["active", "inactive"]).default("active").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
+
+/**
+ * Product Orders - طلبات شراء المنتجات
+ */
+export const productOrders = mysqlTable("productOrders", {
+  id: int("id").autoincrement().primaryKey(),
+  orderNumber: varchar("orderNumber", { length: 20 }).notNull().unique(), // PO-YYYY-XXXX
+  customerId: int("customerId").notNull(),
+  customerName: varchar("customerName", { length: 255 }).notNull(),
+  customerPhone: varchar("customerPhone", { length: 20 }).notNull(),
+  customerEmail: varchar("customerEmail", { length: 320 }),
+  productId: int("productId").notNull(),
+  productNameSnapshot: varchar("productNameSnapshot", { length: 255 }).notNull(),
+  quantity: int("quantity").notNull().default(1),
+  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal("totalPrice", { precision: 10, scale: 2 }).notNull(),
+  shippingName: varchar("shippingName", { length: 255 }).notNull(),
+  shippingPhone: varchar("shippingPhone", { length: 20 }).notNull(),
+  shippingAddress: text("shippingAddress").notNull(),
+  shippingCity: varchar("shippingCity", { length: 100 }).notNull(),
+  status: mysqlEnum("orderStatus", [
+    "pending_payment", // بانتظار الدفع
+    "paid",            // تم تأكيد الدفع
+    "processing",      // جاري التجهيز
+    "shipped",         // تم الشحن
+    "delivered",       // تم التسليم
+    "cancelled",       // ملغي
+  ]).default("pending_payment").notNull(),
+  adminNotes: text("adminNotes"),
+  shippedAt: timestamp("shippedAt"),
+  deliveredAt: timestamp("deliveredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ProductOrder = typeof productOrders.$inferSelect;
+export type InsertProductOrder = typeof productOrders.$inferInsert;
+
+/**
+ * Product Order Payments - دفعات طلبات المنتجات (نفس نمط orderPayments اليدوي)
+ */
+export const productOrderPayments = mysqlTable("productOrderPayments", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: mysqlEnum("paymentMethod", ["bank_transfer", "stc_pay", "mada", "credit_card", "cash"]).notNull(),
+  status: mysqlEnum("status", ["pending", "confirmed", "failed", "refunded"]).default("pending").notNull(),
+  reference: varchar("reference", { length: 255 }),
+  receiptUrl: varchar("receiptUrl", { length: 500 }),
+  notes: text("notes"),
+  confirmedAt: timestamp("confirmedAt"),
+  confirmedBy: varchar("confirmedBy", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ProductOrderPayment = typeof productOrderPayments.$inferSelect;
+export type InsertProductOrderPayment = typeof productOrderPayments.$inferInsert;
 
 // ============================================================
 // نظام طلبات الخدمة (Job Card System) 🎫

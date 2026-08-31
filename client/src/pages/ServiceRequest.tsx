@@ -689,7 +689,7 @@ export default function ServiceRequest() {
                   <p>ستصلك إشعارات بكل تحديث على طلبك</p>
                 </div>
                 <div className="flex gap-3 justify-center pt-4">
-                  <Button variant="outline" onClick={() => window.location.href = "/track"}>
+                  <Button variant="outline" onClick={() => window.location.href = "/my-orders"}>
                     تتبع طلبي
                   </Button>
                   <Button onClick={() => window.location.href = "/"}>

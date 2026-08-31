@@ -36,8 +36,6 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        <p className="text-gray-300 mt-4 text-sm">رسوم الكشف: 200 ريال فقط</p>
-
         {/* مميزات مختصرة */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-3xl mx-auto">
           <div className="flex flex-col items-center gap-2 text-white/90">

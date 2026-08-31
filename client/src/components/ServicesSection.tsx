@@ -9,7 +9,7 @@ export default function ServicesSection() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section id="services" className="py-20 bg-white">
       <div className="container">
         <h2 className="text-4xl font-bold text-center text-black mb-16">
           خدمات مير

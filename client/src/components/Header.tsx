@@ -28,7 +28,7 @@ export default function Header() {
             <Info className="w-4 h-4" />
             {t("header.about")}
           </Link>
-          <a href="#services" className="text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
+          <a href="/#services" className="text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
             {t("header.services")}
           </a>
           <Link href="/service-request" className="flex items-center gap-1.5 text-yellow-600 hover:text-yellow-700 transition-colors font-bold text-sm">
@@ -134,7 +134,7 @@ export default function Header() {
               <Info className="w-4 h-4" />
               {t("header.about")}
             </Link>
-            <a href="#services" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-yellow-500 font-medium py-2">
+            <a href="/#services" onClick={() => setMobileMenuOpen(false)} className="block text-gray-700 hover:text-yellow-500 font-medium py-2">
               {t("header.services")}
             </a>
             <Link href="/service-request" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 font-bold py-2 text-lg">

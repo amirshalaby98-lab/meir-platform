@@ -303,6 +303,7 @@ export default function OBDScanner() {
   const [dtcCodes, setDtcCodes] = useState<DTCEntry[]>([]);
   const [pendingDtcs, setPendingDtcs] = useState<DTCEntry[]>([]);
   const [selectedDtc, setSelectedDtc] = useState<DTCEntry | null>(null);
+  const [showDtcTechDetails, setShowDtcTechDetails] = useState(false);
   const [dtcSearchQuery, setDtcSearchQuery] = useState("");
   const [dtcSearchResults, setDtcSearchResults] = useState<DTCEntry[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -1746,6 +1747,12 @@ export default function OBDScanner() {
   useEffect(() => {
     if (connectionStatus === "error") setShowLogPanel(true);
   }, [connectionStatus]);
+
+  // Collapse the DTC modal's "full technical details" section each time a
+  // different code is opened, so it doesn't stay expanded from a previous look.
+  useEffect(() => {
+    setShowDtcTechDetails(false);
+  }, [selectedDtc?.code]);
 
   const severityColor = useCallback((s: string) => s === "high" ? "bg-red-500" : s === "medium" ? "bg-yellow-500" : "bg-blue-500", []);
   const severityText = useCallback((s: string) => s === "high" ? "عالية" : s === "medium" ? "متوسطة" : "منخفضة", []);
@@ -5500,121 +5507,158 @@ export default function OBDScanner() {
                     </div>
 
                     <div className="p-5 space-y-4">
-                      <div className="bg-gray-800/50 rounded-xl p-4">
-                        <h4 className="text-xs font-bold text-red-400 mb-2">⚠️ الأسباب المحتملة</h4>
-                        <ul className="space-y-1.5">
-                          {selectedDtc.causes.map((c, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                              <span className="text-red-400 mt-0.5">•</span>
-                              <span>{c}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="bg-gray-800/50 rounded-xl p-4">
-                        <h4 className="text-xs font-bold text-green-400 mb-2">✅ طريقة الإصلاح</h4>
-                        <p className="text-sm text-gray-300">{selectedDtc.solution}</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-gray-800/50 rounded-xl p-3">
-                          <div className="text-[10px] text-gray-500 mb-1">تكلفة الإصلاح التقديرية</div>
-                          <div className="text-sm font-bold text-yellow-400">{selectedDtc.estimatedCost}</div>
-                        </div>
-                        <div className="bg-gray-800/50 rounded-xl p-3">
-                          <div className="text-[10px] text-gray-500 mb-1">النظام</div>
-                          <div className="text-sm font-bold text-white">{selectedDtc.system}</div>
-                        </div>
-                      </div>
-
-                      {detailInfo && (detailInfo.affectedComponentsAr?.length || detailInfo.relatedSensors?.length) && (
-                        <div className="bg-yellow-900/10 border border-yellow-500/20 rounded-xl p-4">
-                          <h4 className="text-xs font-bold text-yellow-400 mb-2">ℹ️ معلومات فنية إضافية</h4>
-                          <div className="space-y-1 text-xs text-gray-400">
-                            {detailInfo.affectedComponentsAr && detailInfo.affectedComponentsAr.length > 0 && (
-                              <p>المكونات المتأثرة: <span className="text-gray-300">{detailInfo.affectedComponentsAr.join(" • ")}</span></p>
-                            )}
-                            {detailInfo.relatedSensors && detailInfo.relatedSensors.length > 0 && (
-                              <p>الحساسات ذات الصلة: <span className="text-gray-300 font-mono">{detailInfo.relatedSensors.join(" • ")}</span></p>
-                            )}
-                            {!detailInfo.safeToRide && (
-                              <p className="text-red-400 font-medium">⚠️ لا ينصح بقيادة السيارة قبل الإصلاح</p>
-                            )}
+                      {/* ═══ لمحة سريعة ═══ */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-gray-800/50 rounded-xl p-3 text-center">
+                          <div className="text-[10px] text-gray-500 mb-1">الخطورة</div>
+                          <div className={`text-sm font-bold ${selectedDtc.severity === "high" ? "text-red-400" : selectedDtc.severity === "medium" ? "text-yellow-400" : "text-blue-400"}`}>
+                            {severityText(selectedDtc.severity)}
                           </div>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-xl p-3 text-center">
+                          <div className="text-[10px] text-gray-500 mb-1">تكلفة تقديرية</div>
+                          <div className="text-sm font-bold text-yellow-400 truncate">{selectedDtc.estimatedCost}</div>
+                        </div>
+                        <div className="bg-gray-800/50 rounded-xl p-3 text-center">
+                          <div className="text-[10px] text-gray-500 mb-1">النظام</div>
+                          <div className="text-sm font-bold text-white truncate">{selectedDtc.system}</div>
+                        </div>
+                      </div>
+
+                      {/* ═══ الأهم أولاً: السبب والحل في مكان واحد ═══ */}
+                      <div className="bg-gray-800/50 rounded-xl p-4 space-y-3">
+                        <div>
+                          <h4 className="text-xs font-bold text-red-400 mb-2">⚠️ الأسباب المحتملة</h4>
+                          <ul className="space-y-1.5">
+                            {selectedDtc.causes.map((c, i) => (
+                              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                                <span className="text-red-400 mt-0.5">•</span>
+                                <span>{c}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="pt-3 border-t border-gray-700/50">
+                          <h4 className="text-xs font-bold text-green-400 mb-2">✅ طريقة الإصلاح</h4>
+                          <p className="text-sm text-gray-300">{selectedDtc.solution}</p>
+                        </div>
+                      </div>
+
+                      {!detailInfo?.safeToRide && (
+                        <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-3">
+                          <p className="text-xs text-red-400 font-bold">⚠️ لا ينصح بقيادة السيارة قبل الإصلاح</p>
                         </div>
                       )}
 
-                      {/* ═══ خطوات الفحص التفصيلية ═══ */}
+                      {/* ═══ التفاصيل الفنية الكاملة - قابلة للطي عشان الشاشة متتزحمش ═══ */}
                       {(() => {
                         const diagInfo = getDiagnosticSteps(selectedDtc.code);
-                        if (!diagInfo) return null;
-                        return (
-                          <>
-                            {diagInfo.safetyWarning && (
-                              <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-3">
-                                <p className="text-xs text-red-400 font-bold">{diagInfo.safetyWarning}</p>
-                              </div>
-                            )}
+                        const hasExtraInfo = !!(detailInfo && (detailInfo.affectedComponentsAr?.length || detailInfo.relatedSensors?.length));
+                        if (!hasExtraInfo && !diagInfo) return null;
 
-                            <div className="bg-gray-800/50 rounded-xl p-4">
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="text-xs font-bold text-cyan-400">🔧 خطوات الفحص</h4>
-                                <div className="flex items-center gap-2">
-                                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                                    diagInfo.difficulty === 'easy' ? 'bg-green-900/50 text-green-400' :
-                                    diagInfo.difficulty === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
-                                    diagInfo.difficulty === 'hard' ? 'bg-orange-900/50 text-orange-400' :
-                                    'bg-red-900/50 text-red-400'
-                                  }`}>{diagInfo.difficultyAr}</span>
-                                  <span className="text-[10px] text-gray-500">⏱ {diagInfo.estimatedTime}</span>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                {diagInfo.steps.map((step) => (
-                                  <div key={step.step} className="flex gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-900/50 border border-cyan-500/30 flex items-center justify-center">
-                                      <span className="text-[10px] font-bold text-cyan-400">{step.step}</span>
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-sm font-medium text-white">{step.action}</p>
-                                      <p className="text-xs text-gray-400 mt-0.5">{step.details}</p>
-                                      {step.expectedResult && (
-                                        <p className="text-[10px] text-green-400 mt-0.5">✓ المتوقع: {step.expectedResult}</p>
+                        return (
+                          <div className="bg-gray-800/30 border border-gray-700/50 rounded-xl overflow-hidden">
+                            <button
+                              onClick={() => setShowDtcTechDetails(v => !v)}
+                              className="w-full flex items-center justify-between p-4 text-right"
+                            >
+                              <span className="text-xs font-bold text-yellow-400 flex items-center gap-1.5">
+                                🔧 التفاصيل الفنية الكاملة
+                                {diagInfo && (
+                                  <span className="text-[10px] font-normal text-gray-500">({diagInfo.steps.length} خطوات فحص)</span>
+                                )}
+                              </span>
+                              <span className="text-gray-500 text-xs shrink-0">{showDtcTechDetails ? "إخفاء ▲" : "عرض ▼"}</span>
+                            </button>
+
+                            {showDtcTechDetails && (
+                              <div className="px-4 pb-4 space-y-4 border-t border-gray-700/50 pt-4">
+                                {hasExtraInfo && (
+                                  <div className="bg-yellow-900/10 border border-yellow-500/20 rounded-xl p-4">
+                                    <h4 className="text-xs font-bold text-yellow-400 mb-2">ℹ️ معلومات فنية إضافية</h4>
+                                    <div className="space-y-1 text-xs text-gray-400">
+                                      {detailInfo!.affectedComponentsAr && detailInfo!.affectedComponentsAr.length > 0 && (
+                                        <p>المكونات المتأثرة: <span className="text-gray-300">{detailInfo!.affectedComponentsAr.join(" • ")}</span></p>
+                                      )}
+                                      {detailInfo!.relatedSensors && detailInfo!.relatedSensors.length > 0 && (
+                                        <p>الحساسات ذات الصلة: <span className="text-gray-300 font-mono">{detailInfo!.relatedSensors.join(" • ")}</span></p>
                                       )}
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                            </div>
+                                )}
 
-                            <div className="bg-gray-800/50 rounded-xl p-4">
-                              <h4 className="text-xs font-bold text-orange-400 mb-2">🧰 الأدوات المطلوبة</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {diagInfo.tools.map((tool, i) => (
-                                  <span key={i} className={`text-[10px] px-2 py-1 rounded-lg border ${
-                                    tool.type === 'basic' ? 'bg-green-900/20 border-green-500/30 text-green-400' :
-                                    tool.type === 'advanced' ? 'bg-yellow-900/20 border-yellow-500/30 text-yellow-400' :
-                                    'bg-red-900/20 border-red-500/30 text-red-400'
-                                  }`}>{tool.nameAr}</span>
-                                ))}
-                              </div>
-                            </div>
+                                {diagInfo && (
+                                  <>
+                                    {diagInfo.safetyWarning && (
+                                      <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-3">
+                                        <p className="text-xs text-red-400 font-bold">{diagInfo.safetyWarning}</p>
+                                      </div>
+                                    )}
 
-                            {diagInfo.relatedPIDs.length > 0 && (
-                              <div className="bg-gray-800/50 rounded-xl p-4">
-                                <h4 className="text-xs font-bold text-purple-400 mb-2">📊 بيانات حية مرتبطة</h4>
-                                <div className="space-y-1.5">
-                                  {diagInfo.relatedPIDs.map((pid, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-gray-900/50 rounded-lg px-3 py-1.5">
-                                      <span className="text-xs text-gray-300">{pid.nameAr}</span>
-                                      <span className="text-[10px] font-mono text-purple-400">{pid.normalRange} {pid.unit}</span>
+                                    <div className="bg-gray-900/50 rounded-xl p-4">
+                                      <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-xs font-bold text-cyan-400">🔧 خطوات الفحص</h4>
+                                        <div className="flex items-center gap-2">
+                                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                                            diagInfo.difficulty === 'easy' ? 'bg-green-900/50 text-green-400' :
+                                            diagInfo.difficulty === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
+                                            diagInfo.difficulty === 'hard' ? 'bg-orange-900/50 text-orange-400' :
+                                            'bg-red-900/50 text-red-400'
+                                          }`}>{diagInfo.difficultyAr}</span>
+                                          <span className="text-[10px] text-gray-500">⏱ {diagInfo.estimatedTime}</span>
+                                        </div>
+                                      </div>
+                                      <div className="space-y-2">
+                                        {diagInfo.steps.map((step) => (
+                                          <div key={step.step} className="flex gap-3">
+                                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-cyan-900/50 border border-cyan-500/30 flex items-center justify-center">
+                                              <span className="text-[10px] font-bold text-cyan-400">{step.step}</span>
+                                            </div>
+                                            <div className="flex-1">
+                                              <p className="text-sm font-medium text-white">{step.action}</p>
+                                              <p className="text-xs text-gray-400 mt-0.5">{step.details}</p>
+                                              {step.expectedResult && (
+                                                <p className="text-[10px] text-green-400 mt-0.5">✓ المتوقع: {step.expectedResult}</p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
                                     </div>
-                                  ))}
-                                </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                      <div className="bg-gray-900/50 rounded-xl p-4">
+                                        <h4 className="text-xs font-bold text-orange-400 mb-2">🧰 الأدوات المطلوبة</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                          {diagInfo.tools.map((tool, i) => (
+                                            <span key={i} className={`text-[10px] px-2 py-1 rounded-lg border ${
+                                              tool.type === 'basic' ? 'bg-green-900/20 border-green-500/30 text-green-400' :
+                                              tool.type === 'advanced' ? 'bg-yellow-900/20 border-yellow-500/30 text-yellow-400' :
+                                              'bg-red-900/20 border-red-500/30 text-red-400'
+                                            }`}>{tool.nameAr}</span>
+                                          ))}
+                                        </div>
+                                      </div>
+
+                                      {diagInfo.relatedPIDs.length > 0 && (
+                                        <div className="bg-gray-900/50 rounded-xl p-4">
+                                          <h4 className="text-xs font-bold text-purple-400 mb-2">📊 بيانات حية مرتبطة</h4>
+                                          <div className="space-y-1.5">
+                                            {diagInfo.relatedPIDs.map((pid, i) => (
+                                              <div key={i} className="flex items-center justify-between bg-gray-800/50 rounded-lg px-3 py-1.5">
+                                                <span className="text-xs text-gray-300">{pid.nameAr}</span>
+                                                <span className="text-[10px] font-mono text-purple-400">{pid.normalRange} {pid.unit}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             )}
-                          </>
+                          </div>
                         );
                       })()}
 

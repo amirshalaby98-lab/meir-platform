@@ -1,6 +1,7 @@
 // قاعدة بيانات أكواد OBD2 الشاملة — 1900+ كود بالعربي
 // تشمل: P0xxx + P1xxx + P2xxx + P3xxx + C0xxx + C1xxx + B0xxx + B1xxx + U0xxx + U1xxx
 import { ADDITIONAL_DTC_DATABASE } from './dtcAdditionalDatabase';
+import { OBDEX_DTC_DATABASE } from './dtcObdexDatabase';
 
 export interface MegaDTCEntry {
   code: string;
@@ -1633,6 +1634,7 @@ export const MEGA_DTC_DATABASE: Record<string, MegaDTCEntry> = {
 const UNIFIED_DTC_DATABASE: Record<string, MegaDTCEntry> = {
   ...MEGA_DTC_DATABASE,
   ...ADDITIONAL_DTC_DATABASE,
+  ...OBDEX_DTC_DATABASE,
 };
 
 export function lookupMegaDTC(code: string): MegaDTCEntry | undefined {

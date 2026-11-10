@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import Header from "../components/Header";
 import { trpc } from "../lib/trpc";
 import { useAuth } from "../_core/hooks/useAuth";
-import { FileText, Car, Calendar, AlertTriangle, CheckCircle, Clock, ArrowLeft, ChevronDown, ChevronUp, Activity, Wrench } from "lucide-react";
+import { FileText, Car, Calendar, AlertTriangle, CheckCircle, Clock, ArrowLeft, ChevronDown, ChevronUp, Activity, Wrench, Download } from "lucide-react";
+import { downloadReportPdf } from "../lib/reportPdf";
 
 type ReviewStatus = "pending" | "reviewed" | "action_required";
 
@@ -48,11 +49,21 @@ interface DtcCode {
 
 function ReportCard({ report }: { report: any }) {
   const [expanded, setExpanded] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const dtcCodes = (report.dtcCodes as DtcCode[] | null) ?? [];
   const status = (report.reviewStatus as ReviewStatus) ?? "pending";
   const statusInfo = statusConfig[status];
   const vehicleLabel = [report.make, report.model, report.year].filter(Boolean).join(" ");
   const scanDate = new Date(report.scanDate || report.createdAt);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      await downloadReportPdf(report);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -132,6 +143,16 @@ function ReportCard({ report }: { report: any }) {
             {expanded ? "إخفاء الأعطال" : `عرض ${dtcCodes.length} كود عطل`}
           </button>
         )}
+
+        {/* تحميل PDF */}
+        <button
+          onClick={handleDownload}
+          disabled={downloading}
+          className="w-full flex items-center justify-center gap-1.5 text-sm bg-gray-900 text-white hover:bg-black disabled:opacity-60 py-2 rounded-lg mt-2 transition"
+        >
+          <Download className="w-4 h-4" />
+          {downloading ? "جاري التجهيز..." : "تحميل PDF"}
+        </button>
       </div>
 
       {/* قائمة الأعطال */}

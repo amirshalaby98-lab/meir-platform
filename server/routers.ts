@@ -8,7 +8,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { contactModuleRouter } from "./modules/contacts";
 import { reviewModuleRouter } from "./modules/reviews";
 import { adminModuleRouter, adminDashboardRouter } from "./modules/admin";
-import { usersModuleRouter, getUserByEmail, createLocalUser, verifyPassword, createPasswordResetCode, consumePasswordResetCode, updateUserPassword } from "./modules/users";
+import { usersModuleRouter, getUserByEmail, verifyPassword, createPasswordResetCode, consumePasswordResetCode, updateUserPassword } from "./modules/users";
 import { sendPasswordResetEmail } from "./modules/email";
 import { carDataRouter, advancedPricingRouter, pricingRouter } from "./modules/pricing";
 import { loyaltyModuleRouter } from "./modules/loyalty";
@@ -48,47 +48,28 @@ export const appRouter = router({
       await setUserType(ctx.user.id, input.userType);
       return { success: true } as const;
     }),
-    register: publicProcedure
-      .input(z.object({
-        name: z.string().min(1).max(100).trim(),
-        email: z.string().email().max(320).trim(),
-        password: z.string().min(8).max(200),
-        phone: z.string().max(20).trim().optional(),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const existing = await getUserByEmail(input.email);
-        if (existing) {
-          throw new TRPCError({ code: "CONFLICT", message: "البريد الإلكتروني مستخدم بالفعل" });
-        }
-
-        const user = await createLocalUser(input);
-        if (!user) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "تعذر إنشاء الحساب" });
-        }
-
-        const sessionToken = await sdk.createSessionToken(user.openId, {
-          name: user.name || "",
-          expiresInMs: ONE_YEAR_MS,
-        });
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
-        return { success: true } as const;
-      }),
     login: publicProcedure
       .input(z.object({
         email: z.string().email().max(320).trim(),
         password: z.string().min(1).max(200),
       }))
       .mutation(async ({ ctx, input }) => {
+        const genericError = new TRPCError({ code: "UNAUTHORIZED", message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+
         const user = await getUserByEmail(input.email);
         if (!user || !user.passwordHash) {
-          throw new TRPCError({ code: "UNAUTHORIZED", message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+          throw genericError;
         }
 
         const valid = await verifyPassword(input.password, user.passwordHash);
         if (!valid) {
-          throw new TRPCError({ code: "UNAUTHORIZED", message: "البريد الإلكتروني أو كلمة المرور غير صحيحة" });
+          throw genericError;
+        }
+
+        // Email/password login is restricted to admin accounts - everyone
+        // else signs in via Google (see /api/auth/google).
+        if (user.role !== "admin") {
+          throw genericError;
         }
 
         const sessionToken = await sdk.createSessionToken(user.openId, {

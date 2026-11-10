@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Phone, Menu, X, Wrench, User, LogIn, LogOut, ClipboardList, Info, Cpu, Shield, ShoppingBag } from "lucide-react";
+import { Phone, Menu, X, Wrench, User, LogIn, LogOut, ClipboardList, Info, Cpu, Shield, ShoppingBag, FileText } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
@@ -49,6 +49,14 @@ export default function Header() {
             <Link href="/my-orders" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
               <ClipboardList className="w-4 h-4" />
               {t("header.myOrders")}
+            </Link>
+          )}
+
+          {/* تقاريري - يظهر فقط للمسجلين */}
+          {user && (
+            <Link href="/my-obd-reports" className="flex items-center gap-1.5 text-gray-700 hover:text-yellow-500 transition-colors font-medium text-sm">
+              <FileText className="w-4 h-4" />
+              تقاريري
             </Link>
           )}
 
@@ -155,6 +163,14 @@ export default function Header() {
               <Link href="/my-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
                 <ClipboardList className="w-4 h-4" />
                 {t("header.myOrders")}
+              </Link>
+            )}
+
+            {/* تقاريري - يظهر فقط للمسجلين */}
+            {user && (
+              <Link href="/my-obd-reports" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-medium py-2">
+                <FileText className="w-4 h-4" />
+                تقاريري
               </Link>
             )}
 

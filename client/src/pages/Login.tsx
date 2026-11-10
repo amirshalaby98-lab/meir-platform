@@ -1,32 +1,26 @@
-import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useEffect } from "react";
+import { useSearch } from "wouter";
 import { toast } from "sonner";
-import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
+
+const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
+  google_state: "انتهت صلاحية محاولة الدخول، حاول مرة أخرى",
+  google_not_configured: "تسجيل الدخول بجوجل غير مُفعّل حاليًا",
+  google_token: "تعذر إكمال تسجيل الدخول بجوجل، حاول مرة أخرى",
+  google_userinfo: "تعذر جلب بيانات الحساب من جوجل",
+  google_no_sub: "تعذر التعرف على حساب جوجل",
+  google_failed: "حدث خطأ أثناء تسجيل الدخول بجوجل",
+};
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  const utils = trpc.useUtils();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const search = useSearch();
 
-  const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: async () => {
-      await utils.auth.me.invalidate();
-      setLocation("/select-role");
-    },
-    onError: (error) => {
-      toast.error(error.message || "حدث خطأ أثناء تسجيل الدخول");
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.email || !formData.password) {
-      toast.error("يرجى ملء جميع الحقول");
-      return;
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const error = params.get("error");
+    if (error) {
+      toast.error(GOOGLE_ERROR_MESSAGES[error] || "حدث خطأ أثناء تسجيل الدخول");
     }
-    loginMutation.mutate(formData);
-  };
+  }, [search]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -38,48 +32,18 @@ export default function Login() {
           مرحباً بعودتك إلى مير
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="البريد الإلكتروني"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 transition-all"
-            dir="ltr"
-            disabled={loginMutation.isPending}
-            required
-          />
-          <input
-            type="password"
-            placeholder="كلمة المرور"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 transition-all"
-            dir="ltr"
-            disabled={loginMutation.isPending}
-            required
-          />
-          <Button
-            type="submit"
-            disabled={loginMutation.isPending}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 transition-all"
-          >
-            {loginMutation.isPending ? "جاري الدخول..." : "تسجيل الدخول"}
-          </Button>
-        </form>
-
-        <p className="text-center mt-4">
-          <Link href="/forgot-password" className="text-gray-500 hover:underline text-sm">
-            نسيت كلمة المرور؟
-          </Link>
-        </p>
-
-        <p className="text-center text-gray-500 mt-6">
-          ليس لديك حساب؟{" "}
-          <Link href="/register" className="text-yellow-600 font-semibold hover:underline">
-            إنشاء حساب جديد
-          </Link>
-        </p>
+        <a
+          href="/api/auth/google"
+          className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 rounded-lg transition-all shadow-sm"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47c-.28 1.5-1.13 2.78-2.4 3.63v3.02h3.88c2.27-2.09 3.57-5.17 3.57-8.84z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.9l-3.88-3.02c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.11C3.24 21.3 7.3 24 12 24z" />
+            <path fill="#FBBC05" d="M5.27 14.27A7.2 7.2 0 0 1 4.9 12c0-.79.14-1.56.37-2.27V6.62H1.26A11.97 11.97 0 0 0 0 12c0 1.93.46 3.76 1.26 5.38l4.01-3.11z" />
+            <path fill="#EA4335" d="M12 4.77c1.77 0 3.35.6 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0 7.3 0 3.24 2.7 1.26 6.62l4.01 3.11C6.22 6.88 8.87 4.77 12 4.77z" />
+          </svg>
+          تسجيل الدخول عبر Google
+        </a>
       </div>
     </div>
   );

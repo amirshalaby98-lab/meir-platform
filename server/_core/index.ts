@@ -5,6 +5,7 @@ import net from "net";
 import crypto from "crypto";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
+import { registerGoogleAuthRoutes } from "./googleAuth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -309,10 +310,12 @@ async function startServer() {
 
   // Apply rate limits
   app.use("/api/oauth", authRateLimit);
+  app.use("/api/auth/google", authRateLimit);
   app.use("/api/saved-filters", apiRateLimit);
 
   // OAuth callback
   registerOAuthRoutes(app);
+  registerGoogleAuthRoutes(app);
 
   // Locally-stored uploads (service order videos/photos, etc - see shared/storage.ts)
   app.use("/uploads", express.static(UPLOAD_DIR));

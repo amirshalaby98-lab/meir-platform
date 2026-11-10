@@ -53,7 +53,7 @@ const Quizzes = lazy(() => import("@/pages/Quizzes"));
 const ServiceRequest = lazy(() => import("@/pages/ServiceRequest"));
 const RoleSelection = lazy(() => import("@/pages/RoleSelection"));
 const Login = lazy(() => import("@/pages/Login"));
-const Register = lazy(() => import("@/pages/Register"));
+const AdminLogin = lazy(() => import("@/pages/AdminLogin"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const TechnicianJobCard = lazy(() => import("@/pages/TechnicianJobCard"));
 const OrderTracking = lazy(() => import("@/pages/OrderTracking"));
@@ -180,7 +180,7 @@ function Router() {
         <Route path="/quizzes" component={Quizzes} />
         <Route path="/select-role" component={RoleSelection} />
         <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
+        <Route path="/admin-login" component={AdminLogin} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/service-request" component={ServiceRequest} />
         <Route path="/technician-orders" component={TechnicianJobCard} />

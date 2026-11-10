@@ -113,7 +113,6 @@ export function registerGoogleAuthRoutes(app: Express) {
 
       const openId = `google:${userInfo.sub}`;
       const existingUser = await db.getUserByOpenId(openId);
-      const isNewUser = !existingUser;
 
       await db.upsertUser({
         openId,
@@ -123,6 +122,16 @@ export function registerGoogleAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
+      // Every Google sign-in is a regular customer - skip the account-type
+      // picker entirely. Only set it on first sign-in so it never overwrites
+      // a role an admin assigned later (e.g. promoting someone to vendor).
+      if (!existingUser?.userType) {
+        const createdUser = await db.getUserByOpenId(openId);
+        if (createdUser) {
+          await db.setUserType(createdUser.id, "customer");
+        }
+      }
+
       const sessionToken = await sdk.createSessionToken(openId, {
         name: userInfo.name || "",
         expiresInMs: ONE_YEAR_MS,
@@ -130,11 +139,7 @@ export function registerGoogleAuthRoutes(app: Express) {
 
       res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
 
-      if (isNewUser || !existingUser?.userType) {
-        res.redirect(302, "/select-role");
-      } else {
-        res.redirect(302, "/");
-      }
+      res.redirect(302, "/");
     } catch (error) {
       log.error("[GoogleAuth] Callback failed", error);
       res.redirect(302, "/login?error=google_failed");
